@@ -1,6 +1,6 @@
 import React from "react";
 
-export function ProgressBar({ progress = 0, size = 40, strokeWidth = 4 }) {
+export function ProgressBar({ progress = 0, size = 20, strokeWidth = 3.9 }) {
   const radius = (size - strokeWidth) / 2;
   const circumference = 2 * Math.PI * radius;
   const offset = circumference - (progress / 100) * circumference;

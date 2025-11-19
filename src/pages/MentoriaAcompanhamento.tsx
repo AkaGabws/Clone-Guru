@@ -23,6 +23,10 @@ export default function MentoriaAcompanhamento() {
   // Aceita state.mentoria OU state direto
   const mentoria = (location.state?.mentoria ?? location.state) as MentoriaProps | undefined;
 
+  if (!mentoria) {
+    return <div className="min-h-screen flex items-center justify-center p-6 text-red-600">Mentoria não encontrada</div>;
+  } 
+
   const tipo = mentoria?.tipo ?? "MENTORIA GRATUITA";
   const subtitulo = tipo.includes(">") ? tipo.split(">").slice(1).join(">").trim() : "GESTÃO DE PESSOAS";
   const nome = mentoria?.nome ?? "—";
@@ -37,10 +41,6 @@ export default function MentoriaAcompanhamento() {
   const metaMinutos = 210;
   const [concluidos] = useState(0);
   const faltam = useMemo(() => Math.max(metaMinutos - concluidos, 0), [metaMinutos, concluidos]);
-
-  if (!mentoria) {
-    return <div className="min-h-screen flex items-center justify-center p-6">Mentoria não encontrada</div>;
-  } 
 
   return (
    
@@ -60,8 +60,8 @@ export default function MentoriaAcompanhamento() {
       <div className="h-[3px] bg-[#FFD400]"/>
 
       {/* Card branco com cantos inferiores arredondados */}
-      <section className="max-w-[980px] mx-auto bg-white rounded-b-[28px] shadow-md px-4 sm:px-6 md:px-8 pt-5 pb-6">
-        <div className="mb-4">
+      <section className="max-w-[980px] mx-auto bg-white rounded-b-[28px] shadow-md px-5 sm:px-6 md:px-8 pt-10 pb-2">
+        <div className="mb-5">
           <h1 className="text-[13px] sm:text-sm font-extrabold text-[#136082] uppercase tracking-[0.12em]">
             {tipo.split(">")[0]?.trim() || "MENTORIA GRATUITA"}
             <span className="ml-3 font-semibold normal-case tracking-normal text-[#000000]">{subtitulo}</span>
@@ -136,24 +136,24 @@ export default function MentoriaAcompanhamento() {
             <Chip color="yellow">{dataInscricao}</Chip>
           </div>
         </div>
+
+        {/* : WhatsApp */}
+        <div className="max-w-[980px] px-66 pt-20   " >
+                      <button
+                        onClick={() => window.open(`https://wa.me/${whatsapp}`, "_blank")}
+                        className="inline-flex items-center justify-center w-full sm:w-auto px-6 py-2 rounded-full
+                                  bg-[#25D366] text-white font-semibold shadow hover:brightness-110 transition"
+                        disabled={!whatsapp}
+                        >
+                      Clique para acessar o contato via WhatsApp            
+                    </button>
+                  </div> 
       </section>
 
-      {/* Base azul: WhatsApp + Acompanhe sua mentoria */}
-      <div className="flex-1 bg-[#0B3D6D]">
-        {whatsapp && (
-          <div className="max-w-[980px] mx-auto px-4 sm:px-6 md:px-8 mt-3">
-            <button
-              onClick={() => window.open(`https://wa.me/${whatsapp}`, "_blank")}
-              className="inline-flex items-center justify-center w-full sm:w-auto px-6 py-2 rounded-full
-                         bg-[#25D366] text-white font-semibold shadow hover:brightness-110 transition"
-            >
-              Clique para acessar o contato via WhatsApp
-            </button>
-          </div>
-        )}
-
-        <section className="max-w-[980px] mx-auto px-4 sm:px-6 md:px-8 py-8 text-white">
-          <h3 className="text-[15px] sm:text-base font-extrabold tracking-wide uppercase">Acompanhe sua mentoria</h3>
+      {/* Card azul com cantos inferiores arredondados */}
+      <section className="max-w-[980px] mx-auto bg-[#0b3d6d] px-4 sm:px-6 md:px-8 py-8 rounded-b-[30px] shadow-md  pb-10 text-white " >
+          
+          <h3 className=" mt-6 text-[15px] sm:text-base font-extrabold tracking-wide uppercase">Acompanhe sua mentoria</h3>
           <div className="mt-2 space-y-2 text-[13px] sm:text-[14px] leading-6 text-white/90">
             <p>
               A mentoria que você selecionou tem duração total de <b>{metaMinutos} minutos</b>, dos quais você já
@@ -238,8 +238,8 @@ export default function MentoriaAcompanhamento() {
               </div>
             </form>
           </div>
+          
         </section>
-      </div>
       <Footer />
     </div>
   );
@@ -274,6 +274,7 @@ function InfoBlock({ label, children }: { label: string; children: React.ReactNo
         {label}
       </span>
       <div className="mt-2">{children}</div>
+
     </div>
   );
 }

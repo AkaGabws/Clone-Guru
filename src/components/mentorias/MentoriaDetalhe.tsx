@@ -9,7 +9,14 @@ type MentoriaDetalheProps = {
     nome: string;
     desafio: string;
     data: string;
+    negocio: string;
+    area: string;
+    sobreEmpreendedor: string;
+    cursos: string[];
+    dataInscricao: string;
+    whatsapp?: string;
   } | null;
+
   onClose: () => void;
 };
 
@@ -28,10 +35,10 @@ export function MentoriaDetalhe({ solicitacao, onClose }: MentoriaDetalheProps) 
           tipo: solicitacao.tipo,
           nome: solicitacao.nome,
           desafio: solicitacao.desafio,
-          negocio: null,
-          area: null,
-          sobreEmpreendedor: null,
-          cursos: [],
+          negocio: solicitacao.negocio,
+          area: solicitacao.area,
+          sobreEmpreendedor: solicitacao.sobreEmpreendedor,
+          cursos: solicitacao.cursos,
           dataInscricao: solicitacao.data,
         },
       },
@@ -104,7 +111,7 @@ export function MentoriaDetalhe({ solicitacao, onClose }: MentoriaDetalheProps) 
               Sobre o negócio
             </div>
             <div className="mt-2 text-[13px] sm:text-[14px] leading-6 text-[#1F2937]">
-              
+              {solicitacao.negocio}
             </div>
           </div>
 
@@ -118,7 +125,7 @@ export function MentoriaDetalhe({ solicitacao, onClose }: MentoriaDetalheProps) 
                 Serviços
               </div>
               <div className="px-3 py-[6px] rounded-full text-[12px] font-semibold bg-[#FFDE1A] text-[#003D74]">
-                Informática
+                {solicitacao.area}
               </div>
             </div>
           </div>
@@ -130,7 +137,7 @@ export function MentoriaDetalhe({ solicitacao, onClose }: MentoriaDetalheProps) 
                 Setor
               </div>
               <div className="px-3 py-[6px] rounded-full text-[12px] font-semibold bg-[#FFDE1A] text-[#003D74]">
-                Informática
+                {solicitacao.area}
               </div>
             </div>
           </div>
@@ -141,7 +148,7 @@ export function MentoriaDetalhe({ solicitacao, onClose }: MentoriaDetalheProps) 
               Sobre o/a empreendedor/a
             </div>
             <div className="mt-2 text-[13px] sm:text-[14px] leading-6 text-[#1F2937]">
-             
+             {solicitacao.sobreEmpreendedor}
             </div>
           </div>
 
@@ -151,7 +158,7 @@ export function MentoriaDetalhe({ solicitacao, onClose }: MentoriaDetalheProps) 
               Cursos que o/a empreendedor/a já fez no Tamo junto
             </div>
             <div className="mt-2 text-[13px] sm:text-[14px] text-[#5B6C7B]">
-              Não há Cursos Concluídos
+              {solicitacao.cursos.length ? solicitacao.cursos.join(", ") : "Não há cursos concluídos"}
             </div>
           </div>
 

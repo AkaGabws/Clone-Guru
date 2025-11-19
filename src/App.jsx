@@ -5,11 +5,16 @@ import RootLayout from "./pages/layout";
 import LandingPage from "./pages/page";
 import MentoriasPage from "./pages/MentoriasPage";
 import MentoriaAcompanhamento from "./pages/MentoriaAcompanhamento";
+import { Header } from "./components/sections/Header";
+import CRMPage from "./pages/CRMPage";
 
 export default function App() {
   return (
     <BrowserRouter>
       <Routes>
+        <Route path="/crm" element={<CRMPage />} />
+
+
         {/* Home com seu layout */}
         <Route path="/" element={<RootLayout><LandingPage /></RootLayout>} />
 

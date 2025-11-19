@@ -67,43 +67,110 @@ export default function MentoriasPage() {
         tipo: "MENTORIA NEGÓCIO RAIZ > COMPORTAMENTO EMPREENDEDOR",
         nome: "ARIADNA MIRANDA LACERDA",
         desafio: "Não tenho rotina específica com meu negócio, acho que a memória pode trazer a maturidade que preciso para organizar melhor.",
-        data: "14/08/2025"
+        data: "14/08/2025",
+        negocio: "Ramo musical, faço musica a 15 anos e não sou mais um artista, mas ainda sou um musico, e quero me tornar um artista.",
+        area: "Musica",
+        sobreEmpreendedor: "Sou um artista, mas não sou um musico, e quero me tornar um musico.",
+        cursos: ["Curso de Musica"],
+        dataInscricao: "14/08/2025",
       },
       {
         id: 6,
-        tipo: "MENTORIA NEGÓCIO RAIZ > COMPORTAMENTO EMPREENDEDOR",
-        nome: "ARIADNA MIRANDA LACERDA",
+        tipo: "Mentoria Meu Negócio é Meu País > PRECIFICAÇÃO DE ROTINA",
+        nome: "JOÃO BATISTA",
         desafio: "Não tenho rotina específica com meu negócio, acho que a memória pode trazer a maturidade que preciso para organizar melhor.",
-        data: "14/08/2025"
+        data: "15/08/2025",
+        negocio: "Carpinteiro, sou um carpinteiro, mas não sou um carpinteiro, e quero me tornar um carpinteiro.",
+        area: "Carpinteiro",
+        sobreEmpreendedor: "Sou um carpinteiro, mas não sou um carpinteiro, e quero me tornar um carpinteiro.",
+        cursos: ["Curso de Carpinteiro"],
+        dataInscricao: "15/08/2025",
+        whatsapp: "5511948464703"
       },
       {
         id: 7,
         tipo: "MENTORIA NEGÓCIO RAIZ > COMPORTAMENTO EMPREENDEDOR",
-        nome: "ARIADNA MIRANDA LACERDA",
+        nome: "ALEXANDRE BATISTA",
         desafio: "Não tenho rotina específica com meu negócio, acho que a memória pode trazer a maturidade que preciso para organizar melhor.",
-        data: "14/08/2025"
+        data: "14/08/2025",
+        negocio:"magico de carpinteiro, sou um carpinteiro, mas não sou um carpinteiro, e quero me tornar um carpinteiro.",
+        area: "Carpinteiro",
+        sobreEmpreendedor: "Sou um carpinteiro, mas não sou um carpinteiro, e quero me tornar um carpinteiro.",
+        cursos: ["Curso de Carpinteiro"],
+        dataInscricao: "14/08/2025",
       }
-
-      
     ],
     andamento: [
       {
         id: 3,
-        tipo: "Mentoria Gratuita > Problemas de Personalidade",
+        tipo: "MENTORIA GRATUITA > PROBLEMAS DE PERSONALIDADE",
         nome: "Francisco Oceano",
         desafio: "Faz Anos que não lanço um album novo.",
         data: "14/08/2025",
-        progresso: 100
+        progresso: 80,
+        negocio: "Ramo musical, faço musica a 15 anos e não sou mais um artista, mas ainda sou um musico, e quero me tornar um artista.",
+        area: "Musica",
+        sobreEmpreendedor: "Sou um artista, mas não sou um musico, e quero me tornar um musico.",
+        cursos: ["Curso de Musica"],
+        dataInscricao: "14/08/2025",
+        whatsapp: "5511948464703"
+      },
+      {
+        id: 10,
+        tipo: "MENTORIA GRATUITA > PROBLEMAS DE PERSONALIDADE",
+        nome: "Francisco Oceano",
+        desafio: "Faz Anos que não lanço um album novo.",
+        data: "14/08/2025",
+        progresso: 100,
+        negocio: "Ramo musical, faço musica a 15 anos e não sou mais um artista, mas ainda sou um musico, e quero me tornar um artista.",
+        area: "Musica",
+        sobreEmpreendedor: "Sou um artista, mas não sou um musico, e quero me tornar um musico.",
+        cursos: ["Curso de Musica"],
+        dataInscricao: "14/08/2025",
+        whatsapp: "5511948464703"
+        
+      },
+      {
+        id: 120,
+        tipo: "MENTORIA GRATUITA > PROBLEMAS DE PERSONALIDADE",
+        nome: "Francisco Oceano",
+        desafio: "Faz Anos que não lanço um album novo.",
+        data: "14/08/2025",
+        progresso: 10,
+        negocio: "Ramo musical, faço musica a 15 anos e não sou mais um artista, mas ainda sou um musico, e quero me tornar um artista.",
+        area: "Musica",
+        sobreEmpreendedor: "Sou um artista, mas não sou um musico, e quero me tornar um musico.",
+        cursos: ["Curso de Musica"],
+        dataInscricao: "14/08/2025",
       },
 
     ],
     finalizadas: [
       {
         id: 5,
-        tipo: "Mentoria Gratuita > Não Errar nunca nas Musicas",
+        tipo: "MENTORIA GRATUITA > PROBLEMAS DE PERSONALIDADE",
         nome: "Caio Oceano",
         desafio: "Lançar Musica.",
-        data: "14/08/2025" 
+        data: "14/08/2025",
+        negocio: "Ramo musical, faço musica a 15 anos e não sou mais um artista, mas ainda sou um musico, e quero me tornar um artista.",
+        area: "Musica",
+        sobreEmpreendedor: "Sou um artista, mas não sou um musico, e quero me tornar um musico.",
+        cursos: ["Curso de Musica"],
+        dataInscricao: "14/08/2025",
+        whatsapp: "5511948464703"
+      },
+       {
+        id: 255,
+        tipo: "MENTORIA GRATUITA > PROBLEMAS DE PERSONALIDADE",
+        nome: "MARIA OCEANO",
+        desafio: "Lançar Musica.",
+        data: "14/08/2025" ,
+        negocio: "Ramo musical, faço musica a 15 anos e não sou mais um artista, mas ainda sou um musico, e quero me tornar um artista.",
+        area: "Musica",
+        sobreEmpreendedor: "Sou um artista, mas não sou um musico, e quero me tornar um musico.",
+        cursos: ["Curso de Musica"],
+        dataInscricao: "14/08/2025",
+        whatsapp: "5511948464703"
       },
 
     ]
@@ -128,26 +195,27 @@ export default function MentoriasPage() {
         </div>
 
         {/* Status do Treinamento */}
-        <div className="mb-12 bg-white border-black text-black rounded-x80 p-4 shadow-lg">
+        <div className="mb-12 bg-white border-black text-black rounded-x80 p-1 shadow-lg pb-5">
           <div className="flex items-center bg-blue-900 rounded-t-lg px-20 py-4 gap-4 mb-6">
             <CheckCircle className=" text-yellow-400 w-8 h-8" />
             <h2 className=" text-yellow-400 font-bold text-lg" >TREINAMENTO(S) CONCLUÍDO(S)</h2>
           </div>
           <div className="space-y-6">
             {treinamentos.map((treinamento, index) => (
-              <div key={index} className="flex items-center justify-between py-2">
-                <div className="flex items-center gap-4">
-                  <div className="w-3 h-3 bg-black rounded-full"></div>
-                  <span className="text-black text-lg">{treinamento.nome}</span>
-                </div>
-                <Button className="bg-yellow-400 text-blue-900 font-medium text-sm h-10 px-10 py-1 rounded-full shadow-md hover:bg-yellow-500 transition">
+              <div key={index} className="flex items-center justify-between gap-2 py-1">
+                <span className="text-black text-lg">{treinamento.nome}</span>
+                <Button className=" bg-yellow-400 text-blue-900 font-medium text-sm h-8 px-8 py-1 mb-1 bpr  rounded-full shadow-md hover:bg-yellow-500 transition">
                    Rever
                 </Button>
               </div>
             ))}
           </div>
         </div>
+        
+        
+   
 
+ 
         {/* Tabs de Solicitações */}
         <div className="flex border-b-4 border-gray-200 mb-8">
           <button
@@ -184,7 +252,10 @@ export default function MentoriasPage() {
             FINALIZADAS ({solicitacoes.finalizadas.length})
           </button>
         </div>
-
+      
+      
+     
+          
         {/* Conteúdo das Solicitações */}
         {activeTab === "novas" && solicitacoes.novas.length > 0 && (
           <div className="space-y-8">
@@ -210,25 +281,28 @@ export default function MentoriasPage() {
                       {solicitacao.desafio}
                     </p>
                   </div>
-                  <button
-                    onClick={() => setSolicitacaoSelecionada(solicitacao)}
-                    className="bg-yellow-400 text-blue-900 font-medium text-sm h-10 px-10 py-1 rounded-full shadow-md hover:bg-yellow-500 transition"
-                  >
-                    Conheça mais
-                  </button>
                   {/* Data da solicitação */}
-                  <div className="text-right">
+                  <div className="flex items-center justify-between py-2">
+                     <div className="text-right">
                     <span className="text-gray-600 text-base font-medium">
                       Solicitado em: {solicitacao.data}
                     </span>
                   </div>
+                  {/* Botão Conheça mais */}
+                    <button
+                      onClick={() => setSolicitacaoSelecionada(solicitacao)}
+                      className=" bg-yellow-400 text-blue-900 font-medium text-sm h-8 px-15 py-2 rounded-full shadow-md hover:bg-yellow-500 transition"
+                    >
+                      Conheça mais
+                    </button>
+                  </div>
+                  
                 </div>
               </div>
             ))}
           </div>
         )}
-
-
+      
         {/* Conteúdo das Solicitações */}
         {activeTab === "andamento" && solicitacoes.andamento.length > 0 && (
           <div className="space-y-8">
@@ -255,7 +329,7 @@ export default function MentoriasPage() {
                     </p>
                   </div>
                   <div className="flex flex-col items-end-safe mb-4">
-                    <ProgressBar progress={solicitacao.progresso} size={40}/>
+                    <ProgressBar progress={solicitacao.progresso ?? 0} size={40}/>
                   </div>
                   {/* Data da solicitação */}
                   <div className="text-right">
@@ -324,7 +398,9 @@ export default function MentoriasPage() {
               }
             </p>
           </div>
+    
         )}
+        
       </main>
         <MentoriaDetalhe
           solicitacao={solicitacaoSelecionada}
