@@ -90,10 +90,12 @@ export function MentoriaKanban() {
         let byAba = true;
         switch(abaAtiva) {
         case "pendentes":
+          // pendentes: mostrar todas as mentorias com status "nova"
           byAba = m.status === "nova";
             break;
           case "ativas":
-            byAba = m.status === "ativa" ;
+          // ativas precisam ter mentor vinculado
+          byAba = m.status === "ativa" && !!m.mentorId;
             break;
           case "concluidas":
             byAba = m.status === "concluida";
@@ -327,11 +329,16 @@ function MatchCard({ mentoria, projeto, mentor }: {
 
   // Estado local para atualização imediata da UI (evita "piscar")
   const [localStatus, setLocalStatus] = React.useState<string>(mentoria.status);
+  const [localMentorId, setLocalMentorId] = React.useState<string | undefined>(mentoria.mentorId);
 
   // Sincroniza quando a prop mentoria muda
   React.useEffect(() => {
     setLocalStatus(mentoria.status);
   }, [mentoria.status]);
+
+  React.useEffect(() => {
+    setLocalMentorId(mentoria.mentorId);
+  }, [mentoria.mentorId]);
 
   const mentoresFiltrados = React.useMemo(() => {
     if (!buscarMentor) return state.mentores;
@@ -339,6 +346,7 @@ function MatchCard({ mentoria, projeto, mentor }: {
   }, [state.mentores, buscarMentor]);
 
   const selecionarMentor = (mentorId: string) => {
+    setLocalMentorId(mentorId);
     dispatch({ type: "ATRIBUIR_MENTOR", payload: { mentoriaId: mentoria.id, mentorId } });
     setShowMentorModal(false);
     setBuscarMentor("");
@@ -392,7 +400,7 @@ function MatchCard({ mentoria, projeto, mentor }: {
               >
                 <span className="flex-1 h-9 px-2 text-sm border rounded-md bg-white flex items-center">
                 <User className="w-4 h-4 text-gray-500 flex-shrink-0 mr-2" />
-                {mentor?.nome || "Sem mentor"}
+                {localMentorId ? state.mentores.find((m) => m.id === localMentorId)?.nome || "Sem mentor" : "Sem mentor"}
                 </span>
               </button>
             </div>

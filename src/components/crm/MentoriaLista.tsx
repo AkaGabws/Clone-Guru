@@ -2,7 +2,7 @@ import React from "react";
 import { useCrm } from "../../store/CrmContext";
 import { Button } from "../../components/ui/button";
 import { StatusMentoria, Mentoria, Relato } from "../../types/crm";
-import { MapPin, X, Edit2, Trash2, Save, User, Calendar, Clock, AlertTriangle } from "lucide-react";
+import { MapPin, X, Edit2, Trash2, Save, User, Calendar, Clock, AlertTriangle, MessageCircle, UserRound } from "lucide-react";
 
 // 1. Definição dos Status conforme sua regra
 const STATUS_MAP: Record<string, string> = {
@@ -378,6 +378,23 @@ function MentoriaDetalhesModal({ mentoriaId, onClose }: { mentoriaId: string, on
     }, [onClose]);
 
     if (!m) return null;
+    const mentoriaAtual = m;
+
+    const mensagemWhatsapp = `Olá ${mentoriaAtual.empreendedor}! Aqui é da equipe de mentoria.`;
+    const whatsappNumber = mentor?.telefone ?? "";
+    const primeiroNomeEmpreendedor = mentoriaAtual.empreendedor.split(" ")[0] || "Pessoa";
+
+    function handleWhatsapp() {
+        const phone = whatsappNumber.replace(/\D/g, "");
+        const baseUrl = phone ? `https://wa.me/${phone}` : "https://wa.me/";
+        const url = `${baseUrl}?text=${encodeURIComponent(mensagemWhatsapp)}`;
+        window.open(url, "_blank", "noopener,noreferrer");
+    }
+
+    function handleImpersonate() {
+        const url = `/empreendedores/${mentoriaAtual.id}?impersonate=true`;
+        window.open(url, "_blank", "noopener,noreferrer");
+    }
 
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center">
@@ -393,6 +410,26 @@ function MentoriaDetalhesModal({ mentoriaId, onClose }: { mentoriaId: string, on
                              <span className="text-xs px-2 py-0.5 rounded-full bg-blue-100 text-blue-800 border border-blue-200">
                                 {STATUS_MAP[m.status] || m.status}
                              </span>
+                        </div>
+                        <div className="mt-3 flex flex-wrap gap-2">
+                            <button
+                                type="button"
+                                onClick={handleWhatsapp}
+                                className="h-10 w-10 rounded-full bg-green-600 text-white flex items-center justify-center hover:bg-green-700 transition-colors"
+                                title="Enviar mensagem no WhatsApp"
+                            >
+                                <MessageCircle className="w-4 h-4" />
+                                <span className="sr-only">Enviar WhatsApp</span>
+                            </button>
+                            <button
+                                type="button"
+                                onClick={handleImpersonate}
+                                className="h-10 w-10 rounded-full bg-purple-700 text-white flex items-center justify-center hover:bg-purple-800 transition-colors"
+                                title={`Entrar como ${primeiroNomeEmpreendedor}`}
+                            >
+                                <UserRound className="w-4 h-4" />
+                                <span className="sr-only">Entrar como {primeiroNomeEmpreendedor}</span>
+                            </button>
                         </div>
                     </div>
                     <button 

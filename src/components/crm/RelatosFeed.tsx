@@ -12,10 +12,28 @@ function VinculacaoMentores() {
   const [mentoresLocal, setMentoresLocal] = useState<any[]>(state.mentores ?? []);
   useEffect(() => setMentoresLocal(state.mentores ?? []), [state.mentores]);
 
+  useEffect(() => {
+    setProjetosStatus((prev) => {
+      let changed = false;
+      const next = { ...prev };
+      projetos.forEach((p) => {
+        if (!next[p.id]) {
+          next[p.id] = 'ativo';
+          changed = true;
+        }
+      });
+      return changed ? next : prev;
+    });
+  }, [projetos]);
+
   const [projetoSelecionado, setProjetoSelecionado] = useState<any | null>(null);
   const [showModal, setShowModal] = useState(false);
   const [buscaVinculados, setBuscaVinculados] = useState('');
   const [buscaDisponiveis, setBuscaDisponiveis] = useState('');
+  const [buscaProjetos, setBuscaProjetos] = useState('');
+  const [projectFilter, setProjectFilter] = useState<string>('todos');
+  const [statusFilter, setStatusFilter] = useState<'todos' | 'ativo' | 'inativo'>('todos');
+  const [projetosStatus, setProjetosStatus] = useState<Record<string, 'ativo' | 'inativo'>>({});
 
   // helpers para dispatch genérico (se o reducer suportar)
   const dispatchAny = dispatch as unknown as (action: any) => void;
@@ -100,21 +118,76 @@ function VinculacaoMentores() {
     });
   };
 
+  const toggleStatusProjeto = (projetoId: string) => {
+    setProjetosStatus((prev) => {
+      const atual = prev[projetoId] ?? 'ativo';
+      return { ...prev, [projetoId]: atual === 'ativo' ? 'inativo' : 'ativo' };
+    });
+  };
+
   // relatos ligados ao projeto (opcional) — aqui uso relatos que referenciam mentorias; deixei como exemplo vazio
   const relatosDoProjeto = useMemo(() => {
     if (!projetoSelecionado) return [];
     return relatos.filter(r => r.projetoId === projetoSelecionado.id).sort((a,b) => (a.dataISO < b.dataISO ? 1 : -1));
   }, [relatos, projetoSelecionado]);
 
+  const projetosFiltrados = useMemo(() => {
+    const busca = buscaProjetos.toLowerCase();
+    return projetos
+      .filter((p) => (projectFilter === 'todos' ? true : p.id === projectFilter))
+      .filter((p) => (statusFilter === 'todos' ? true : (projetosStatus[p.id] ?? 'ativo') === statusFilter))
+      .filter((p) => p.nome.toLowerCase().includes(busca));
+  }, [projetos, projectFilter, statusFilter, buscaProjetos, projetosStatus]);
+
+  const statusProjetoSelecionado = projetoSelecionado ? (projetosStatus[projetoSelecionado.id] ?? 'ativo') : 'ativo';
+
   return (
     <div className="min-h-screen bg-gray-50 p-6">
       <div className="max-w-6xl mx-auto">
         <h1 className="text-2xl font-bold text-gray-900 mb-6">Gestão de Mentores por Projeto</h1>
 
+        {/* Filtros */}
+        <div className="mb-6 flex flex-col md:flex-row gap-3">
+          <input
+            type="text"
+            placeholder="Buscar projeto..."
+            className="border rounded-md px-3 py-2 text-sm w-full md:max-w-sm"
+            value={buscaProjetos}
+            onChange={(e) => setBuscaProjetos(e.target.value)}
+          />
+          <select
+            className="border rounded-md h-10 px-2 text-sm bg-white"
+            value={projectFilter}
+            onChange={(e) => setProjectFilter(e.target.value)}
+          >
+            <option value="todos">Todos os projetos</option>
+            {projetos.map((p) => (
+              <option key={p.id} value={p.id}>
+                {p.nome}
+              </option>
+            ))}
+          </select>
+          <select
+            className="border rounded-md h-10 px-2 text-sm bg-white"
+            value={statusFilter}
+            onChange={(e) => setStatusFilter(e.target.value as 'todos' | 'ativo' | 'inativo')}
+          >
+            <option value="todos">Todos os status</option>
+            <option value="ativo">Ativos</option>
+            <option value="inativo">Inativos</option>
+          </select>
+        </div>
+
         {/* Grid de Projetos */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {projetos.map((projeto) => {
+          {projetosFiltrados.length === 0 && (
+            <div className="col-span-full text-center text-gray-500 text-sm py-12">
+              Nenhum projeto corresponde aos filtros selecionados.
+            </div>
+          )}
+          {projetosFiltrados.map((projeto) => {
             const qtdMentores = mentoresLocal.filter(m => Array.isArray(m.projetosIds) && m.projetosIds.includes(projeto.id)).length;
+            const statusAtual = projetosStatus[projeto.id] ?? 'ativo';
 
             return (
               <div
@@ -127,9 +200,14 @@ function VinculacaoMentores() {
                     <h3 className="font-semibold text-gray-900">{projeto.nome}</h3>
                     <p className="text-sm text-gray-600 mt-1">Projeto ID: {projeto.id}</p>
                   </div>
-                  <span className="px-2 py-1 bg-blue-100 text-blue-700 text-xs font-medium rounded">
-                    {qtdMentores} {qtdMentores === 1 ? 'mentor' : 'mentores'}
-                  </span>
+                  <div className="flex flex-col items-end gap-1">
+                    <span className={`px-2 py-0.5 text-xs font-medium rounded ${statusAtual === 'ativo' ? 'bg-green-100 text-green-700' : 'bg-gray-200 text-gray-700'}`}>
+                      {statusAtual === 'ativo' ? 'Ativo' : 'Inativo'}
+                    </span>
+                    <span className="px-2 py-0.5 bg-blue-100 text-blue-700 text-xs font-medium rounded">
+                      {qtdMentores} {qtdMentores === 1 ? 'mentor' : 'mentores'}
+                    </span>
+                  </div>
                 </div>
 
                 <div className="flex items-center gap-2 text-sm text-gray-500">
@@ -161,6 +239,21 @@ function VinculacaoMentores() {
                   className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
                 >
                   <X className="w-5 h-5 text-gray-500" />
+                </button>
+              </div>
+
+              <div className="px-6 py-3 border-b bg-gray-50 flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+                <div className="text-sm">
+                  <span className="text-gray-700 font-medium">Status: </span>
+                  <span className={statusProjetoSelecionado === 'ativo' ? 'text-green-700 font-semibold' : 'text-gray-600 font-semibold'}>
+                    {statusProjetoSelecionado === 'ativo' ? 'Ativo' : 'Inativo'}
+                  </span>
+                </div>
+                <button
+                  onClick={() => toggleStatusProjeto(projetoSelecionado.id)}
+                  className={`px-4 py-2 text-sm font-medium rounded-md transition-colors ${statusProjetoSelecionado === 'ativo' ? 'bg-red-100 text-red-700 hover:bg-red-200' : 'bg-green-100 text-green-700 hover:bg-green-200'}`}
+                >
+                  {statusProjetoSelecionado === 'ativo' ? 'Desativar projeto' : 'Reativar projeto'}
                 </button>
               </div>
 
