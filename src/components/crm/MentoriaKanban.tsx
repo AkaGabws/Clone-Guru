@@ -89,8 +89,8 @@ export function MentoriaKanban() {
         // Filtro por aba
         let byAba = true;
         switch(abaAtiva) {
-          case "pendentes":
-            byAba = !m.mentorId || m.status === "nova";
+        case "pendentes":
+          byAba = m.status === "nova";
             break;
           case "ativas":
             byAba = m.status === "ativa" ;
