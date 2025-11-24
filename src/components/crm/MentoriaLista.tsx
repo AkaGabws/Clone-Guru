@@ -1,8 +1,8 @@
 import React from "react";
 import { useCrm } from "../../store/CrmContext";
 import { Button } from "../../components/ui/button";
-import { StatusMentoria } from "../../types/crm";
-import { MapPin, X, Edit2, Trash2, Save, User } from "lucide-react";
+import { StatusMentoria, Mentoria, Relato } from "../../types/crm";
+import { MapPin, X, Edit2, Trash2, Save, User, Calendar, Clock, AlertTriangle } from "lucide-react";
 
 // 1. Definição dos Status conforme sua regra
 const STATUS_MAP: Record<string, string> = {
@@ -38,8 +38,9 @@ export function MentoriaLista() {
     return ativos.filter(m => m.nome.toLowerCase().includes(buscarMentor.toLowerCase()));
   }, [state.mentores, buscarMentor]);
 
-  // --- NOVO: filtros locais (projeto + data) ---
+  // --- NOVO: filtros locais (projeto + data + status) ---
   const [projectFilter, setProjectFilter] = React.useState<string>("todos");
+  const [statusFilter, setStatusFilter] = React.useState<string>("todos");
   const [dateFilter, setDateFilter] = React.useState<
     "todos" | "hoje" | "ultimos3Dias" | "ultimaSemana" | "ultimoMes" | "ultimoAno" | "custom"
   >("todos");
@@ -108,7 +109,10 @@ export function MentoriaLista() {
         const projeto = state.projetos.find((p) => p.id === m.projetoId);
 
         // 1. Filtros Dropdown (existentes)
-        const byStatus = !status || status === "todas" ? true : m.status === status;
+        // Filtro de status: usa filtro local se diferente de "todos", senão usa o global
+        const byStatusGlobal = !status || status === "todas" ? true : m.status === status;
+        const byStatusLocal = statusFilter === "todos" ? true : m.status === statusFilter;
+        const byStatus = byStatusGlobal && byStatusLocal;
         const byMentor = !mentorId || mentorId === "todos" ? true : m.mentorId === mentorId;
         // aplica filtro global do state e filtro local de projeto (local tem prioridade se diferente de "todos")
         const byProjetoGlobal = !projetoId || projetoId === "todos" ? true : m.projetoId === projetoId;
@@ -140,7 +144,7 @@ export function MentoriaLista() {
         return byStatus && byMentor && byProjeto && byBusca && byDate;
       })
       .sort((a, b) => (a.ultimaAtualizacaoISO < b.ultimaAtualizacaoISO ? 1 : -1));
-  }, [state.mentorias, state.filtro, state.mentores, state.projetos, buscaLocal, projectFilter, dateFilter, customFrom, customTo]);
+  }, [state.mentorias, state.filtro, state.mentores, state.projetos, buscaLocal, projectFilter, statusFilter, dateFilter, customFrom, customTo]);
 
   return (
     <>
@@ -154,6 +158,18 @@ export function MentoriaLista() {
             onChange={(e) => setBuscaLocal(e.target.value)}
         />
         
+        {/* Filtro por Status */}
+        <select
+          className="border rounded-md h-9 px-2 text-sm bg-white"
+          value={statusFilter}
+          onChange={(e) => setStatusFilter(e.target.value)}
+        >
+          <option value="todos">Todos status</option>
+          {Object.entries(STATUS_MAP).map(([key, label]) => (
+            <option key={key} value={key}>{label}</option>
+          ))}
+        </select>
+
         {/* Filtro por Projeto (local) */}
         <select
           className="border rounded-md h-9 px-2 text-sm bg-white"
@@ -340,44 +356,59 @@ function MentoriaDetalhesModal({ mentoriaId, onClose }: { mentoriaId: string, on
     const projeto = state.projetos.find(p => p.id === m?.projetoId);
 
     // Filtra relatos desta mentoria
-    const relatos = state.relatos
-        .filter(r => r.mentoriaId === mentoriaId)
-        .sort((a, b) => (a.dataISO < b.dataISO ? 1 : -1));
+    const relatos = React.useMemo(() => {
+        const filtrados = state.relatos
+            .filter(r => r.mentoriaId === mentoriaId)
+            .sort((a, b) => (a.dataISO < b.dataISO ? 1 : -1));
+        return filtrados;
+    }, [state.relatos, mentoriaId]);
+
+    React.useEffect(() => {
+        const handleEscape = (e: KeyboardEvent) => {
+            if (e.key === "Escape") {
+                onClose();
+            }
+        };
+        document.addEventListener("keydown", handleEscape);
+        document.body.style.overflow = "hidden";
+        return () => {
+            document.removeEventListener("keydown", handleEscape);
+            document.body.style.overflow = "unset";
+        };
+    }, [onClose]);
 
     if (!m) return null;
 
     return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm">
-            <div className="bg-white rounded-lg shadow-xl w-full max-w-2xl max-h-[90vh] overflow-hidden flex flex-col">
+        <div className="fixed inset-0 z-50 flex items-center justify-center">
+            <div className="fixed inset-0 bg-black/50" onClick={onClose} />
+            <div className="relative z-50 bg-white rounded-lg shadow-lg w-full max-w-2xl max-h-[90vh] mx-4 overflow-hidden flex flex-col">
                 
                 {/* Header do Modal */}
-                <div className="flex justify-between items-start p-4 border-b bg-gray-50">
+                <div className="flex justify-between items-start p-6 border-b">
                     <div>
-                        <h2 className="text-lg font-bold text-blue-900">{m.empreendedor}</h2>
-                        <p className="text-sm text-gray-600">Projeto: {projeto?.nome} • Mentor: {mentor?.nome || 'Não atribuído'}</p>
-                        <div className="mt-1">
+                        <h2 className="text-xl font-bold text-blue-900">{m.empreendedor}</h2>
+                        <p className="text-sm text-gray-600 mt-1">Projeto: {projeto?.nome} • Mentor: {mentor?.nome || 'Não atribuído'}</p>
+                        <div className="mt-2">
                              <span className="text-xs px-2 py-0.5 rounded-full bg-blue-100 text-blue-800 border border-blue-200">
                                 {STATUS_MAP[m.status] || m.status}
                              </span>
                         </div>
                     </div>
-                    <button onClick={onClose} className="text-gray-400 hover:text-gray-700">
-                        <X className="w-6 h-6" />
+                    <button 
+                        onClick={onClose} 
+                        className="text-gray-500 hover:text-gray-700 text-2xl leading-none"
+                        aria-label="Fechar"
+                    >
+                        ×
                     </button>
                 </div>
 
                 {/* Corpo com Scroll */}
-                <div className="overflow-y-auto p-4 space-y-6 flex-1">
+                <div className="overflow-y-auto p-6 space-y-6 flex-1">
                     
                     {/* Seção 1: Próximo Encontro */}
-                    <div className="bg-blue-50 border border-blue-100 rounded-md p-4">
-                        <h3 className="text-sm font-bold text-blue-900 mb-2">📅 Próximo Encontro</h3>
-                        <div className="text-sm text-gray-700">
-                            {/* Aqui você pode ligar com um campo real de data se tiver */}
-                            <p>Data: <strong>15 de Julho de 2024</strong></p>
-                            <p>Hora: <strong>14:00 - 15:00</strong></p>
-                        </div>
-                    </div>
+                    <ProximoEncontroSection mentoria={m} />
 
                     {/* Seção 2: Informações da Mentoria */}
                     <div>
@@ -415,51 +446,96 @@ function MentoriaDetalhesModal({ mentoriaId, onClose }: { mentoriaId: string, on
                 </div>
 
                 {/* Footer */}
-                <div className="p-3 border-t bg-gray-50 text-right">
-                    <Button variant="outline" onClick={onClose} className="text-xs">Fechar</Button>
+                <div className="p-4 border-t flex justify-end">
+                    <Button variant="outline" onClick={onClose}>
+                        Fechar
+                    </Button>
                 </div>
             </div>
         </div>
     );
 }
 
-// Adiciona tipos mínimos usados localmente
-type Relato = {
-  id: string;
-  mentoriaId: string;
-  texto: string;
-  dataISO: string;
-};
-
 // --- Componente Item de Relato (Com Edição) ---
 function RelatoItem({ relato }: { relato: Relato }) {
     const { dispatch } = useCrm();
-    // dispatch do contexto pode ter tipos restritos — usar uma versão local mais permissiva para ações dinâmicas
     const dispatchAny = dispatch as unknown as (action: any) => void;
 
     const [isEditing, setIsEditing] = React.useState(false);
+    const [showDeleteConfirm, setShowDeleteConfirm] = React.useState(false);
     const [textoEditado, setTextoEditado] = React.useState(relato.texto);
+    const [dataEncontro, setDataEncontro] = React.useState(
+        relato.dataEncontroISO ? new Date(relato.dataEncontroISO).toISOString().split('T')[0] : ''
+    );
+    const [duracaoMinutos, setDuracaoMinutos] = React.useState(
+        relato.duracaoMinutos?.toString() || ''
+    );
+
     const handleSave = () => {
-        dispatchAny({ type: "EDITAR_RELATO", payload: { relatoId: relato.id, texto: textoEditado } });
-        setTextoEditado("");
+        const dataEncontroISO = dataEncontro ? new Date(dataEncontro + 'T00:00:00').toISOString() : undefined;
+        const duracao = duracaoMinutos ? parseInt(duracaoMinutos, 10) : undefined;
+        
+        dispatchAny({ 
+            type: "EDITAR_RELATO", 
+            payload: { 
+                relatoId: relato.id, 
+                relato: {
+                    texto: textoEditado,
+                    dataEncontroISO,
+                    duracaoMinutos: duracao
+                }
+            } 
+        });
         setIsEditing(false);
     }
+
+    const handleCancel = () => {
+        setTextoEditado(relato.texto);
+        setDataEncontro(relato.dataEncontroISO ? new Date(relato.dataEncontroISO).toISOString().split('T')[0] : '');
+        setDuracaoMinutos(relato.duracaoMinutos?.toString() || '');
+        setIsEditing(false);
+    }
+
     const handleDelete = () => {
         dispatchAny({ type: "EXCLUIR_RELATO", payload: { relatoId: relato.id } });
+        setShowDeleteConfirm(false);
         setIsEditing(false);
     }
 
     if (isEditing) {
         return (
             <div className="border rounded-md p-3 bg-yellow-50 border-yellow-200">
+                <div className="grid grid-cols-2 gap-2 mb-3">
+                    <div>
+                        <label className="block text-xs text-gray-600 mb-1">Data do Encontro</label>
+                        <input
+                            type="date"
+                            className="w-full text-sm p-2 border rounded"
+                            value={dataEncontro}
+                            onChange={(e) => setDataEncontro(e.target.value)}
+                        />
+                    </div>
+                    <div>
+                        <label className="block text-xs text-gray-600 mb-1">Duração (minutos)</label>
+                        <input
+                            type="number"
+                            className="w-full text-sm p-2 border rounded"
+                            placeholder="Ex: 60"
+                            value={duracaoMinutos}
+                            onChange={(e) => setDuracaoMinutos(e.target.value)}
+                            min="0"
+                        />
+                    </div>
+                </div>
                 <textarea
                     className="w-full text-sm p-2 border rounded mb-2"
                     rows={3}
                     value={textoEditado}
                     onChange={(e) => setTextoEditado(e.target.value)}
+                    placeholder="Descrição do encontro..."
                 />
                 <div className="flex gap-2 justify-end">
-                     <Button variant="ghost" onClick={() => setIsEditing(false)} className="h-8">
+                     <Button variant="ghost" onClick={handleCancel} className="h-8">
                         Cancelar
                      </Button>
                      <Button onClick={handleSave} className="h-8 bg-blue-600 hover:bg-blue-700">
@@ -470,22 +546,209 @@ function RelatoItem({ relato }: { relato: Relato }) {
         )
     }
 
+    if (!relato || !relato.id) return null;
+
     return (
-        <div className="border rounded-md p-3 hover:shadow-sm transition-shadow bg-white">
-            <div className="flex justify-between items-start mb-1">
-                <span className="text-xs font-semibold text-gray-500">
-                    {new Date(relato.dataISO).toLocaleString('pt-BR')}
-                </span>
-                <div className="flex gap-1">
-                    <button onClick={() => setIsEditing(true)} className="p-1 text-gray-400 hover:text-blue-600" title="Editar">
-                        <Edit2 className="w-3 h-3" />
-                    </button>
-                    <button onClick={handleDelete} className="p-1 text-gray-400 hover:text-red-600" title="Excluir">
-                        <Trash2 className="w-3 h-3" />
+        <>
+            <div className="border rounded-md p-3 hover:shadow-sm transition-shadow bg-white">
+                <div className="flex justify-between items-start mb-2">
+                    <div className="flex-1">
+                        {relato.dataISO && (
+                            <div className="text-xs font-semibold text-gray-500 mb-1 flex items-center">
+                                Registrado em: {new Date(relato.dataISO).toLocaleString('pt-BR')}
+                            </div>
+                        )}
+                        {relato.dataEncontroISO && (
+                            <div className="text-xs font-semibold text-blue-700 mb-1 flex items-center gap-1">
+                                <Calendar className="w-3 h-3" />
+                                <span>Data do encontro: {new Date(relato.dataEncontroISO).toLocaleDateString('pt-BR')}</span>
+                            </div>
+                        )}
+                        {relato.duracaoMinutos && (
+                            <div className="text-xs font-semibold text-green-700 flex items-center gap-1">
+                                <Clock className="w-3 h-3" />
+                                <span>Duração: {relato.duracaoMinutos} minutos</span>
+                            </div>
+                        )}
+                    </div>
+                    <div className="flex gap-1">
+                        <button onClick={() => setIsEditing(true)} className="p-1 text-gray-400 hover:text-blue-600" title="Editar">
+                            <Edit2 className="w-3 h-3" />
+                        </button>
+                        <button onClick={() => setShowDeleteConfirm(true)} className="p-1 text-gray-400 hover:text-red-600" title="Excluir">
+                            <Trash2 className="w-3 h-3" />
+                        </button>
+                    </div>
+                </div>
+                <p className="text-sm text-gray-800 whitespace-pre-wrap">{relato.texto || 'Sem descrição'}</p>
+            </div>
+
+            {/* Modal de Confirmação de Exclusão */}
+            {showDeleteConfirm && (
+                <ConfirmDeleteModal
+                    onConfirm={handleDelete}
+                    onCancel={() => setShowDeleteConfirm(false)}
+                    title="Excluir Relato"
+                    message="Tem certeza que deseja excluir este relato? Esta ação não pode ser desfeita."
+                />
+            )}
+        </>
+    );
+}
+
+// --- Componente Modal de Confirmação de Exclusão ---
+function ConfirmDeleteModal({ 
+    onConfirm, 
+    onCancel, 
+    title, 
+    message 
+}: { 
+    onConfirm: () => void; 
+    onCancel: () => void; 
+    title: string; 
+    message: string;
+}) {
+    React.useEffect(() => {
+        const handleEscape = (e: KeyboardEvent) => {
+            if (e.key === "Escape") {
+                onCancel();
+            }
+        };
+        document.addEventListener("keydown", handleEscape);
+        document.body.style.overflow = "hidden";
+        return () => {
+            document.removeEventListener("keydown", handleEscape);
+            document.body.style.overflow = "unset";
+        };
+    }, [onCancel]);
+
+    return (
+        <div className="fixed inset-0 z-[60] flex items-center justify-center">
+            <div className="fixed inset-0 bg-black/50" onClick={onCancel} />
+            <div className="relative z-[60] bg-white rounded-lg shadow-lg w-full max-w-md mx-4 p-6">
+                <div className="flex items-start gap-4 mb-4">
+                    <div className="flex-shrink-0 w-12 h-12 rounded-full bg-red-100 flex items-center justify-center">
+                        <AlertTriangle className="w-6 h-6 text-red-600" />
+                    </div>
+                    <div className="flex-1">
+                        <h3 className="text-lg font-bold text-gray-900 mb-2">{title}</h3>
+                        <p className="text-sm text-gray-600">{message}</p>
+                    </div>
+                    <button
+                        onClick={onCancel}
+                        className="text-gray-400 hover:text-gray-700 text-2xl leading-none"
+                        aria-label="Fechar"
+                    >
+                        ×
                     </button>
                 </div>
+                <div className="flex gap-3 justify-end">
+                    <Button variant="outline" onClick={onCancel}>
+                        Cancelar
+                    </Button>
+                    <Button 
+                        onClick={onConfirm}
+                        className="bg-red-600 hover:bg-red-700 text-white"
+                    >
+                        Excluir
+                    </Button>
+                </div>
             </div>
-            <p className="text-sm text-gray-800 whitespace-pre-wrap">{relato.texto}</p>
+        </div>
+    );
+}
+
+// --- Componente Próximo Encontro (Com Edição) ---
+function ProximoEncontroSection({ mentoria }: { mentoria: Mentoria }) {
+    const { dispatch } = useCrm();
+    const [isEditing, setIsEditing] = React.useState(false);
+    const [dataEncontro, setDataEncontro] = React.useState(
+        mentoria.proximoEncontroDataISO ? new Date(mentoria.proximoEncontroDataISO).toISOString().split('T')[0] : ''
+    );
+    const [horario, setHorario] = React.useState(mentoria.proximoEncontroHorario || '');
+
+    const handleSave = () => {
+        const dataISO = dataEncontro ? new Date(dataEncontro + 'T00:00:00').toISOString() : undefined;
+        dispatch({
+            type: "ATUALIZAR_PROXIMO_ENCONTRO",
+            payload: {
+                mentoriaId: mentoria.id,
+                dataISO,
+                horario: horario || undefined
+            }
+        });
+        setIsEditing(false);
+    }
+
+    const handleCancel = () => {
+        setDataEncontro(mentoria.proximoEncontroDataISO ? new Date(mentoria.proximoEncontroDataISO).toISOString().split('T')[0] : '');
+        setHorario(mentoria.proximoEncontroHorario || '');
+        setIsEditing(false);
+    }
+
+    if (isEditing) {
+        return (
+            <div className="bg-blue-50 border border-blue-100 rounded-md p-4">
+                <div className="flex items-center justify-between mb-3">
+                    <h3 className="text-sm font-bold text-blue-900">📅 Próximo Encontro</h3>
+                    <div className="flex gap-1">
+                        <button onClick={handleCancel} className="p-1 text-gray-400 hover:text-gray-600" title="Cancelar">
+                            <X className="w-4 h-4" />
+                        </button>
+                    </div>
+                </div>
+                <div className="grid grid-cols-2 gap-3 mb-3">
+                    <div>
+                        <label className="block text-xs text-gray-600 mb-1">Data</label>
+                        <input
+                            type="date"
+                            className="w-full text-sm p-2 border rounded bg-white"
+                            value={dataEncontro}
+                            onChange={(e) => setDataEncontro(e.target.value)}
+                        />
+                    </div>
+                    <div>
+                        <label className="block text-xs text-gray-600 mb-1">Horário (HH:mm)</label>
+                        <input
+                            type="time"
+                            className="w-full text-sm p-2 border rounded bg-white"
+                            value={horario}
+                            onChange={(e) => setHorario(e.target.value)}
+                        />
+                    </div>
+                </div>
+                <div className="flex gap-2 justify-end">
+                    <Button variant="ghost" onClick={handleCancel} className="h-8 text-xs">
+                        Cancelar
+                    </Button>
+                    <Button onClick={handleSave} className="h-8 bg-blue-600 hover:bg-blue-700 text-xs">
+                        <Save className="w-3 h-3 mr-1" /> Salvar
+                    </Button>
+                </div>
+            </div>
+        );
+    }
+
+    return (
+        <div className="bg-blue-50 border border-blue-100 rounded-md p-4">
+            <div className="flex items-center justify-between mb-2">
+                <h3 className="text-sm font-bold text-blue-900"> Próximo Encontro</h3>
+                <button onClick={() => setIsEditing(true)} className="p-1 text-gray-400 hover:text-blue-600" title="Editar">
+                    <Edit2 className="w-4 h-4" />
+                </button>
+            </div>
+            <div className="text-sm text-gray-700">
+                {mentoria.proximoEncontroDataISO ? (
+                    <>
+                        <p>Data: <strong>{new Date(mentoria.proximoEncontroDataISO).toLocaleDateString('pt-BR')}</strong></p>
+                        {mentoria.proximoEncontroHorario && (
+                            <p>Horário: <strong>{mentoria.proximoEncontroHorario}</strong></p>
+                        )}
+                    </>
+                ) : (
+                    <p className="text-gray-500 italic">Nenhum encontro agendado</p>
+                )}
+            </div>
         </div>
     );
 }

@@ -28,6 +28,8 @@ export interface Relato {
   mentoriaId: string;
   mentorId?: string;
   dataISO: string;       // new Date().toISOString()
+  dataEncontroISO?: string; // Data do encontro (quando ocorreu)
+  duracaoMinutos?: number;  // Duração do encontro em minutos
   titulo?: string;
   texto: string;
 }
@@ -43,6 +45,8 @@ export interface Mentoria {
   dataCriacaoISO: string;
   ultimaAtualizacaoISO: string;
   progresso?: number;    // 0-100 caso use
+  proximoEncontroDataISO?: string; // Data do próximo encontro (YYYY-MM-DD)
+  proximoEncontroHorario?: string; // Horário do próximo encontro (HH:mm)
 }
 
 export interface CRMState {

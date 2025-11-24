@@ -182,50 +182,7 @@ function VinculacaoMentores() {
 
               {/* Colunas */}
               <div className="flex-1 overflow-hidden grid grid-cols-2 divide-x">
-                {/* Coluna Esquerda - Mentores Vinculados */}
-                <div className="flex flex-col">
-                  <div className="px-6 py-3 bg-green-50 border-b">
-                    <h3 className="font-semibold text-green-900 mb-2">
-                      Mentores Vinculados ({vinculados.length})
-                    </h3>
-                    <div className="relative">
-                      <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
-                      <input
-                        type="text"
-                        placeholder="Buscar..."
-                        className="w-full pl-9 pr-3 py-2 border rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
-                        value={buscaVinculados}
-                        onChange={(e) => setBuscaVinculados(e.target.value)}
-                      />
-                    </div>
-                  </div>
-
-                  <div className="flex-1 overflow-y-auto p-4">
-                    {vinculados.length === 0 ? (
-                      <div className="text-center py-12 text-gray-500 text-sm">
-                        Nenhum mentor vinculado
-                      </div>
-                    ) : (
-                      <div className="space-y-2">
-                        {vinculados.map((mentor) => (
-                          <div
-                            key={mentor.id}
-                            onClick={() => toggleMentor(mentor.id)}
-                            className="flex items-center gap-3 p-3 bg-green-50 border border-green-200 rounded-lg hover:bg-green-100 cursor-pointer transition-colors"
-                          >
-                            <CheckSquare className="w-5 h-5 text-green-600 flex-shrink-0" />
-                            <div className="flex-1 min-w-0">
-                              <div className="font-medium text-gray-900">{mentor.nome}</div>
-                              <div className="text-xs text-gray-600">{mentor.area ||  ''}</div>
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    )}
-                  </div>
-                </div>
-
-                {/* Coluna Direita - Mentores Disponíveis */}
+                {/* Coluna Esquerda - Mentores Disponíveis */}
                 <div className="flex flex-col">
                   <div className="px-6 py-3 bg-gray-50 border-b">
                     <h3 className="font-semibold text-gray-900 mb-2">
@@ -260,6 +217,49 @@ function VinculacaoMentores() {
                             <div className="flex-1 min-w-0">
                               <div className="font-medium text-gray-900">{mentor.nome}</div>
                               <div className="text-xs text-gray-600">{mentor.area || ''}</div>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                {/* Coluna Direita - Mentores Vinculados */}
+                <div className="flex flex-col">
+                  <div className="px-6 py-3 bg-green-50 border-b">
+                    <h3 className="font-semibold text-green-900 mb-2">
+                      Mentores Vinculados ({vinculados.length})
+                    </h3>
+                    <div className="relative">
+                      <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+                      <input
+                        type="text"
+                        placeholder="Buscar..."
+                        className="w-full pl-9 pr-3 py-2 border rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
+                        value={buscaVinculados}
+                        onChange={(e) => setBuscaVinculados(e.target.value)}
+                      />
+                    </div>
+                  </div>
+
+                  <div className="flex-1 overflow-y-auto p-4">
+                    {vinculados.length === 0 ? (
+                      <div className="text-center py-12 text-gray-500 text-sm">
+                        Nenhum mentor vinculado
+                      </div>
+                    ) : (
+                      <div className="space-y-2">
+                        {vinculados.map((mentor) => (
+                          <div
+                            key={mentor.id}
+                            onClick={() => toggleMentor(mentor.id)}
+                            className="flex items-center gap-3 p-3 bg-green-50 border border-green-200 rounded-lg hover:bg-green-100 cursor-pointer transition-colors"
+                          >
+                            <CheckSquare className="w-5 h-5 text-green-600 flex-shrink-0" />
+                            <div className="flex-1 min-w-0">
+                              <div className="font-medium text-gray-900">{mentor.nome}</div>
+                              <div className="text-xs text-gray-600">{mentor.area ||  ''}</div>
                             </div>
                           </div>
                         ))}

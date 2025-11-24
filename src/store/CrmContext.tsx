@@ -7,7 +7,10 @@ type Action =
   | { type: "MUDAR_STATUS"; payload: { mentoriaId: string; status: StatusMentoria } }
   | { type: "ATRIBUIR_MENTOR"; payload: { mentoriaId: string; mentorId?: string } }
   | { type: "ATUALIZAR_MENTOR"; payload: { mentor: Mentor } }
-  | { type: "ADICIONAR_RELATO"; payload: { relato: Relato } };
+  | { type: "ADICIONAR_RELATO"; payload: { relato: Relato } }
+  | { type: "EDITAR_RELATO"; payload: { relatoId: string; relato: Partial<Relato> } }
+  | { type: "EXCLUIR_RELATO"; payload: { relatoId: string } }
+  | { type: "ATUALIZAR_PROXIMO_ENCONTRO"; payload: { mentoriaId: string; dataISO?: string; horario?: string } };
 
 const CrmContext = createContext<{
   state: CRMState;
@@ -46,6 +49,35 @@ function crmReducer(state: CRMState, action: Action): CRMState {
     case "ADICIONAR_RELATO": {
       const relatos = [...state.relatos, action.payload.relato];
       return { ...state, relatos };
+    }
+
+    case "EDITAR_RELATO": {
+      const { relatoId, relato } = action.payload;
+      const relatos = state.relatos.map((r) =>
+        r.id === relatoId ? { ...r, ...relato } : r
+      );
+      return { ...state, relatos };
+    }
+
+    case "EXCLUIR_RELATO": {
+      const { relatoId } = action.payload;
+      const relatos = state.relatos.filter((r) => r.id !== relatoId);
+      return { ...state, relatos };
+    }
+
+    case "ATUALIZAR_PROXIMO_ENCONTRO": {
+      const { mentoriaId, dataISO, horario } = action.payload;
+      const mentorias = state.mentorias.map((m) =>
+        m.id === mentoriaId
+          ? {
+              ...m,
+              proximoEncontroDataISO: dataISO,
+              proximoEncontroHorario: horario,
+              ultimaAtualizacaoISO: new Date().toISOString(),
+            }
+          : m
+      );
+      return { ...state, mentorias };
     }
 
     default:
