@@ -78,9 +78,6 @@ export const crmMock: CRMState = {
     for (let i = 1; i <= 120; i++) {
       const id = `s${i}`;
       const projetoId = projetosIds[(i - 1) % projetosIds.length];
-      const hasMentor = i % 5 !== 0;
-      // escolhe mentor entre todos os mentores gerados
-      const mentorId = hasMentor ? mentoresIds[(i * 7) % mentoresIds.length] : undefined;
 
       // status com pesos via pseudoRandom
       const r = Math.floor(pseudoRandom(i) * 100);
@@ -91,6 +88,12 @@ export const crmMock: CRMState = {
       else if (r < 82) status = "concluida";
       else if (r < 92) status = "cancelada";
       else status = "expirada";
+
+      // Mentorias novas e expiradas não devem ter mentor atribuído
+      // (novas: ainda não atribuídas; expiradas: nenhum mentor aceitou)
+      const hasMentor = status !== "nova" && status !== "expirada" && i % 5 !== 0;
+      // escolhe mentor entre todos os mentores gerados
+      const mentorId = hasMentor ? mentoresIds[(i * 7) % mentoresIds.length] : undefined;
 
       // progresso baseado no status
       let progresso = 0;

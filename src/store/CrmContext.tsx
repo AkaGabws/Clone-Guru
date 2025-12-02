@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useReducer, useMemo, ReactNode, useEffect } from "react";
 import { CRMState, Mentoria, Mentor, Relato, StatusMentoria, StatusAcompanhamento } from "../types/crm";
-import { crmMock } from "../data/crmMock";
+import { crmMock } from "../data";
 
 type Action =
   | { type: "SET_FILTER"; payload: Partial<CRMState["filtro"]> }

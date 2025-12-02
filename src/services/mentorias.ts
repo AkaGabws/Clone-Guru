@@ -1,34 +1,9 @@
 import { Encontro, Mentoria, MentoriaStatus } from '../types/mentoria';
-
-const MOCK_DB: Mentoria[] = [
-  {
-    id: '1',
-    titulo: 'Mentoria Gratuita > Marketing / Vendas',
-    iniciadoEm: '2025-08-19',
-    metaMinutos: 210,
-    status: 'ativa',
-    empreendedor: {
-      nome: 'Gabriel Marques Alves',
-      desafios: 'TESTE',
-      sobreNegocio: 'TESTE',
-      areaAtuacao: 'Serviço',
-      setor: 'Vendas/Marketing',
-      inscritoDesde: '2025-05-23',
-      whatsapp: '5511948464703',
-      cursosCompletados: [
-        {
-          texto: 'Gestão de Negócios para Costureiras de Reparo',
-          url: 'https://tamojunto.aliancaempreendedora.org.br/cursos/gestao-de-negocios-para-costureiras-de-reparo',
-        },
-      ],
-      cursosEmAndamento: [],
-    },
-  },
-];
+import { mentoriasMock } from '../data';
 
 export async function getMentoriaById(id: string): Promise<Mentoria | null> {
   // quando tiver API: fetch(`/api/mentorias/${id}`)
-  const fromMock = MOCK_DB.find((m) => m.id === id);
+  const fromMock = mentoriasMock.find((m) => m.id === id);
   if (!fromMock) return null;
 
   // prioriza status salvo localmente
