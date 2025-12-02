@@ -2,8 +2,9 @@ import React from "react";
 import { Button } from "../../components/ui/button";
 import { useCrm } from "../../store/CrmContext";
 import { StatusMentoria } from "../../types/crm";
-import { User, Building2, MessageSquare } from "lucide-react";
+import { User, Video } from "lucide-react";
 import { Filter, Users, KanbanSquare, List, NotebookPen } from "lucide-react";
+import { MentoriaDetalhesModal, BuscarMentorModal, AcompanhamentoModal } from "./modals";
 
 
 const STATUS_MAP: Record<string, string> = {
@@ -30,6 +31,11 @@ export function MentoriaKanban() {
   // Estado para busca local
   const [buscaLocal, setBuscaLocal] = React.useState("");
   
+  // Estado para controlar qual mentoria está aberta no Modal
+  const [mentoriaSelecionadaId, setMentoriaSelecionadaId] = React.useState<string | null>(null);
+  // Estado para controlar qual mentoria está aberta no Modal de Acompanhamento
+  const [mentoriaAcompanhamentoId, setMentoriaAcompanhamentoId] = React.useState<string | null>(null);
+  
   // Filtro de visualização (abas)
   const [abaAtiva, setAbaAtiva] = React.useState<"pendentes" | "ativas" | "concluidas" | "canceladas" | "expiradas" >("pendentes");
 
@@ -42,6 +48,11 @@ export function MentoriaKanban() {
 
   // Filtro de projeto local (adicionado)
   const [projectFilter, setProjectFilter] = React.useState<string>("todos");
+
+  // Filtro de quantidade de encontros (custom é o padrão)
+  const [encontrosFilter, setEncontrosFilter] = React.useState<string>("custom");
+  const [customMinEncontros, setCustomMinEncontros] = React.useState<string>("");
+  const [customMaxEncontros, setCustomMaxEncontros] = React.useState<string>("");
 
   // Filtra mentorias
   const mentoriasFiltradas = React.useMemo(() => {
@@ -139,11 +150,58 @@ export function MentoriaKanban() {
               return d >= range.from && d <= range.to;
             })();
 
-        return byStatus && byMentor && byProjeto && byBusca && byDate;
+        // Filtro por quantidade de encontros
+        const numEncontros = state.relatos.filter(r => r.mentoriaId === m.id).length;
+        let byEncontros = true;
+        if (encontrosFilter === "todos") {
+          byEncontros = true;
+        } else if (encontrosFilter === "custom") {
+          // Filtro customizado: range entre min e max
+          // Se ambos estiverem vazios, não filtra
+          if (!customMinEncontros && !customMaxEncontros) {
+            byEncontros = true;
+          } else {
+            const min = customMinEncontros ? parseInt(customMinEncontros) : 0;
+            const max = customMaxEncontros ? parseInt(customMaxEncontros) : Infinity;
+            // Valida se os valores são números válidos
+            if (isNaN(min) && isNaN(max)) {
+              byEncontros = true;
+            } else if (isNaN(min)) {
+              byEncontros = numEncontros <= max;
+            } else if (isNaN(max)) {
+              byEncontros = numEncontros >= min;
+            } else {
+              byEncontros = numEncontros >= min && numEncontros <= max;
+            }
+          }
+        } else {
+          // Filtros pré-definidos
+          switch (encontrosFilter) {
+            case "0":
+              byEncontros = numEncontros === 0;
+              break;
+            case "1-3":
+              byEncontros = numEncontros >= 1 && numEncontros <= 3;
+              break;
+            case "4-6":
+              byEncontros = numEncontros >= 4 && numEncontros <= 6;
+              break;
+            case "7-10":
+              byEncontros = numEncontros >= 7 && numEncontros <= 10;
+              break;
+            case "11+":
+              byEncontros = numEncontros > 10;
+              break;
+            default:
+              byEncontros = true;
+          }
+        }
+
+        return byStatus && byMentor && byProjeto && byBusca && byDate && byEncontros;
       })
       .sort((a, b) => (a.ultimaAtualizacaoISO < b.ultimaAtualizacaoISO ? 1 : -1));
-  // dependências: inclui filtros de data
-  }, [state.mentorias, state.filtro, state.mentores, state.projetos, buscaLocal, abaAtiva, dateFilter, customFrom, customTo, projectFilter]);
+  // dependências: inclui filtros de data e encontros
+  }, [state.mentorias, state.filtro, state.mentores, state.projetos, state.relatos, buscaLocal, abaAtiva, dateFilter, customFrom, customTo, projectFilter, encontrosFilter, customMinEncontros, customMaxEncontros]);
 
   // Contadores para as abas
   const contadores = React.useMemo(() => {
@@ -245,6 +303,41 @@ export function MentoriaKanban() {
             <input type="date" className="h-9 px-2 text-sm border rounded-md bg-white" value={customTo} onChange={(e) => setCustomTo(e.target.value)} />
           </div>
         )}
+
+        {/* Filtro por Quantidade de Encontros */}
+        <div className="flex items-center gap-1">
+          <select
+            className="border rounded-md h-9 px-2 text-sm bg-white"
+            value={encontrosFilter}
+            onChange={(e) => setEncontrosFilter(e.target.value)}
+          >
+            <option value="todos">Todos encontros</option>
+            <option value="custom">Custom</option>
+            <option value="0">Sem encontros</option>
+          </select>
+
+          {encontrosFilter === "custom" && (
+            <>
+              <input 
+                type="number" 
+                min="0"
+                placeholder="Mín"
+                className="h-9 px-2 text-sm border rounded-md bg-white w-20" 
+                value={customMinEncontros} 
+                onChange={(e) => setCustomMinEncontros(e.target.value)} 
+              />
+              <span className="text-xs text-gray-500">—</span>
+              <input 
+                type="number" 
+                min="0"
+                placeholder="Máx"
+                className="h-9 px-2 text-sm border rounded-md bg-white w-20" 
+                value={customMaxEncontros} 
+                onChange={(e) => setCustomMaxEncontros(e.target.value)} 
+              />
+            </>
+          )}
+        </div>
       </div>
       {/* Lista de mentorias */}
       <div className="space-y-3">
@@ -263,11 +356,30 @@ export function MentoriaKanban() {
                 mentoria={m} 
                 projeto={projeto} 
                 mentor={mentor}
+                onAbrirEncontros={() => setMentoriaSelecionadaId(m.id)}
+                onAbrirAcompanhamento={() => setMentoriaAcompanhamentoId(m.id)}
+                abaAtiva={abaAtiva}
               />
             );
           })
         )}
       </div>
+
+      {/* Renderiza o Modal se houver ID selecionado */}
+      {mentoriaSelecionadaId && (
+          <MentoriaDetalhesModal 
+            mentoriaId={mentoriaSelecionadaId} 
+            onClose={() => setMentoriaSelecionadaId(null)} 
+          />
+      )}
+
+      {/* Renderiza o Modal de Acompanhamento se houver ID selecionado */}
+      {mentoriaAcompanhamentoId && (
+          <AcompanhamentoModal 
+            mentoriaId={mentoriaAcompanhamentoId} 
+            onClose={() => setMentoriaAcompanhamentoId(null)} 
+          />
+      )}
     </div>
   );
 }
@@ -317,15 +429,17 @@ function TabButton({
   );
 }
 
-function MatchCard({ mentoria, projeto, mentor }: { 
+function MatchCard({ mentoria, projeto, mentor, onAbrirEncontros, onAbrirAcompanhamento, abaAtiva }: { 
   mentoria: any; 
   projeto: any; 
   mentor?: any;
+  onAbrirEncontros: () => void;
+  onAbrirAcompanhamento: () => void;
+  abaAtiva: string;
 }) {
   const { state, dispatch } = useCrm();
   const [expanded, setExpanded] = React.useState(false);
   const [showMentorModal, setShowMentorModal] = React.useState(false);
-  const [buscarMentor, setBuscarMentor] = React.useState("");
 
   // Estado local para atualização imediata da UI (evita "piscar")
   const [localStatus, setLocalStatus] = React.useState<string>(mentoria.status);
@@ -340,20 +454,52 @@ function MatchCard({ mentoria, projeto, mentor }: {
     setLocalMentorId(mentoria.mentorId);
   }, [mentoria.mentorId]);
 
-  const mentoresFiltrados = React.useMemo(() => {
-    if (!buscarMentor) return state.mentores;
-    return state.mentores.filter((m) => m.nome.toLowerCase().includes(buscarMentor.toLowerCase()));
-  }, [state.mentores, buscarMentor]);
+  // Verifica se a mentoria tem relatos/encontros
+  const temRelatos = React.useMemo(() => {
+    return state.relatos.some(r => r.mentoriaId === mentoria.id);
+  }, [state.relatos, mentoria.id]);
+
+  // Verifica se não tem encontros (para desabilitar o botão)
+  const naoTemEncontros = !temRelatos;
+  
+  // Verifica se é mentoria nova (status "nova") - não deve mostrar o botão
+  const isMentoriaNova = localStatus === "nova";
+
+  // Busca relatos/encontros da mentoria
+  const relatosMentoria = React.useMemo(() => {
+    return state.relatos
+      .filter(r => r.mentoriaId === mentoria.id)
+      .sort((a, b) => {
+        const dataA = a.dataEncontroISO || a.dataISO;
+        const dataB = b.dataEncontroISO || b.dataISO;
+        return dataB.localeCompare(dataA); // Mais recente primeiro
+      });
+  }, [state.relatos, mentoria.id]);
+
+  // Último encontro (para status ativa)
+  const ultimoEncontro = relatosMentoria[0];
+
+  // Informações para status concluída
+  const totalEncontros = relatosMentoria.length;
+  const dataUltimoEncontro = ultimoEncontro 
+    ? (ultimoEncontro.dataEncontroISO || ultimoEncontro.dataISO)
+    : null;
 
   const selecionarMentor = (mentorId: string) => {
     setLocalMentorId(mentorId);
     dispatch({ type: "ATRIBUIR_MENTOR", payload: { mentoriaId: mentoria.id, mentorId } });
     setShowMentorModal(false);
-    setBuscarMentor("");
   };
 
   return (
-    <div className="bg-white rounded-lg border border-gray-200 shadow-sm hover:shadow-md transition-shadow">
+    <div className="bg-white   rounded-t-lg rounded-b-lg border border-gray-200 shadow-sm hover:shadow-md transition-shadow">
+      <div className="px-4 py-2 bg-blue-900 border-b rounded-t-lg text-bold text-base text-gray-500 flex items-center justify-between">
+        <span className="font-bold text-yellow-400">{projeto?.nome || "—"}</span>
+        <span className={`text-xs px-4 py-0.5 rounded-full font-bold border ${colorMap[mentoria.status]}`}>
+                {STATUS_MAP[mentoria.status] || mentoria.status}
+        </span>
+      </div>
+
       {/* Header do card */}
       <div className="p-4">
         <div className="flex items-start justify-between gap-4">
@@ -361,15 +507,9 @@ function MatchCard({ mentoria, projeto, mentor }: {
           <div className="">
             <div className="flex items-center gap-2 mb-1">
               <h3 className="font-bold text-blue-900">{mentoria.empreendedor}</h3>
-              <span className={`text-xs px-4 py-0.5 rounded-full font-bold border ${colorMap[mentoria.status]}`}>
-                {STATUS_MAP[mentoria.status] || mentoria.status}
-              </span>
             </div>
             
             <div className="flex items-center gap-3 text-sm text-gray-600 mb-2">
-              <div className="flex items-center gap-1">
-                <span>{projeto?.nome || "—"}</span>
-              </div>
               {mentoria.negocio && (
                 <div className="flex items-center gap-1">
                   <span className="line-clamp-1">{mentoria.negocio}</span>
@@ -388,47 +528,148 @@ function MatchCard({ mentoria, projeto, mentor }: {
                 {mentoria.desafio}
               </p>
             )}
+
+            {/* Informações adicionais baseadas no status */}
+            {localStatus === "ativa" && (
+              <div className="mt-3 p-3 bg-gray-50 border border-gray-200 rounded-md">
+                {ultimoEncontro ? (
+                  <>
+                    <p className="text-xs font-semibold text-gray-700 mb-2">
+                      Encontro {totalEncontros}:
+                    </p>
+                    <p className="text-xs text-blue-800 line-clamp-2">
+                      {ultimoEncontro.titulo ? `${ultimoEncontro.titulo}: ` : ''}
+                      {ultimoEncontro.texto.length > 100 
+                        ? `${ultimoEncontro.texto.substring(0, 100)}...` 
+                        : ultimoEncontro.texto}
+                    </p>
+                  </>
+                ) : (
+                  <p className="text-xs text-gray-500 italic">
+                    Nenhuma interação registrada
+                  </p>
+                )}
+              </div>
+            )}
+
+            {/* Seção de Acompanhamento */}
+            {!isMentoriaNova && mentoria.status !== "expirada" && abaAtiva !== "expiradas" && (
+              <div className="mt-3 p-3 bg-gray-50 border border-gray-200 rounded-md">
+                <p className="text-xs font-semibold text-gray-700 mb-2">Acompanhamento:</p>
+                <div className="space-y-2 text-xs">
+                  <div className="flex gap-2">
+                    <span className="text-gray-600 font-medium">Encontros (Guru):</span>
+                    <span className="text-gray-800">{totalEncontros}</span>
+                  </div>
+                  {mentoria.numEncontrosAcompanhamento !== undefined && (
+                    <div className="flex gap-2">
+                      <span className="text-gray-600 font-medium">Encontros (Acompanhamento):</span>
+                      <span className="text-gray-800">{mentoria.numEncontrosAcompanhamento}</span>
+                    </div>
+                  )}
+                  {mentoria.proximoEncontroDataISO && (
+                    <div className="flex gap-2">
+                      <span className="text-gray-600 font-medium">Próximo encontro:</span>
+                      <span className="text-gray-800">
+                        {new Date(mentoria.proximoEncontroDataISO).toLocaleDateString('pt-BR')}
+                        {mentoria.proximoEncontroHorario && ` às ${mentoria.proximoEncontroHorario}`}
+                      </span>
+                    </div>
+                  )}
+                  {mentoria.observacaoEmpreendedor && (
+                    <div>
+                      <span className="text-gray-600 font-medium block mb-1">Obs. Empreendedor:</span>
+                      <p className="text-gray-800 line-clamp-2">{mentoria.observacaoEmpreendedor}</p>
+                    </div>
+                  )}
+                  {mentoria.observacaoMentor && (
+                    <div>
+                      <span className="text-gray-600 font-medium block mb-1">Obs. Mentor:</span>
+                      <p className="text-gray-800 line-clamp-2">{mentoria.observacaoMentor}</p>
+                    </div>
+                  )}
+                  {mentoria.motivoCancelamento && (
+                    <div>
+                      <span className="text-gray-600 font-medium block mb-1">Motivo Finalização:</span>
+                      <p className="text-gray-800">{mentoria.motivoCancelamento}</p>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+
+            
+
+            {localStatus === "concluida" && (
+              <div className="mt-3 p-2 bg-lime-50 border border-lime-200 rounded-md">
+                <p className="text-xs text-lime-800">
+                  <strong>Total de encontros:</strong> {totalEncontros}
+                  {dataUltimoEncontro && (
+                    <>
+                      {' • '}
+                      <strong>Último encontro:</strong>{' '}
+                      {new Date(dataUltimoEncontro).toLocaleDateString('pt-BR')}
+                    </>
+                  )}
+                </p>
+              </div>
+            )}
+
+            {localStatus === "cancelada" && (
+              <div className="mt-3 p-2 bg-rose-50 border border-rose-200 rounded-md">
+                <p className="text-xs text-rose-800">
+                  <strong>Motivo do cancelamento:</strong>{' '}
+                  {mentoria.motivoCancelamento || 'Não informado'}
+                </p>
+              </div>
+            )}
           </div>
 
           {/* Ações rápidas */}
           <div className="flex flex-col gap-2 min-w-[200px]">
             {/* Exibe mentor como texto (substitui o dropdown) */}
             <div className="flex items-center gap-2">
+              <span className="text-sm text-gray-500 font-bold">Mentor:</span>
               <button 
-              onClick={() => setShowMentorModal(true)}
-              className="flex-1 h-9 px-2 text-sm border rounded-md bg-white flex items-center hover:bg-gray-50 transition-colors cursor-pointer"
+                onClick={() => setShowMentorModal(true)}
+                className="flex-1 h-9 px-2 text-sm border rounded-md bg-white flex items-center hover:bg-gray-50 transition-colors cursor-pointer"
               >
-                <span className="flex-1 h-9 px-2 text-sm border rounded-md bg-white flex items-center">
                 <User className="w-4 h-4 text-gray-500 flex-shrink-0 mr-2" />
-                {localMentorId ? state.mentores.find((m) => m.id === localMentorId)?.nome || "Sem mentor" : "Sem mentor"}
+                <span className="flex-1 text-left">
+                  {localMentorId ? state.mentores.find((m) => m.id === localMentorId)?.nome || "Sem mentor" : "Sem mentor"}
                 </span>
               </button>
             </div>
 
-            {/* Seletor de status */}
-            <select
-              className="h-9 px-2 text-sm border rounded-md bg-white"
-              value={localStatus}
-              onChange={(e) => {
-                const novoStatus = e.target.value as StatusMentoria;
-                // atualiza UI imediatamente
-                setLocalStatus(novoStatus);
-                // dispatch para o reducer
-                dispatch({ 
-                  type: "MUDAR_STATUS", 
-                  payload: { 
-                    mentoriaId: mentoria.id, 
-                    status: novoStatus 
-                  } 
-                });
-              }}
-            >
-              {Object.entries(STATUS_MAP).map(([key, label]) => (
-                <option key={key} value={key}>
-                  {label}
-                </option>
-              ))}
-            </select>
+            {/* Seletor de status - não aparece na aba pendentes */}
+            {abaAtiva !== "pendentes" && (
+              <div className="flex items-center gap-2">
+                <span className="text-sm text-gray-500 font-bold">Status:</span>
+                <select
+                  className="flex-1 h-9 px-2 text-sm border rounded-md bg-white hover:bg-gray-50 transition-colors cursor-pointer"
+                  value={localStatus}
+                  onChange={(e) => {
+                    const novoStatus = e.target.value as StatusMentoria;
+                    // atualiza UI imediatamente
+                    setLocalStatus(novoStatus);
+                    // dispatch para o reducer
+                    dispatch({ 
+                      type: "MUDAR_STATUS", 
+                      payload: { 
+                        mentoriaId: mentoria.id, 
+                        status: novoStatus 
+                      } 
+                    });
+                  }}
+                >
+                  {Object.entries(STATUS_MAP).map(([key, label]) => (
+                    <option key={key} value={key}>
+                      {label}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            )}
 
             {/* Botão de expandir/ver mais */}
             {mentoria.desafio && mentoria.desafio.length > 100 && (
@@ -440,66 +681,165 @@ function MatchCard({ mentoria, projeto, mentor }: {
                 {expanded ? "Ver menos" : "Ver mais"}
               </Button>
             )}
+
+            {/* Botão Encontros - aparece apenas para mentorias ativas, concluídas ou pausadas */}
+            {!isMentoriaNova && abaAtiva !== "pendentes" && abaAtiva !== "expiradas" && (
+              <div className="flex items-center gap-2">
+                <span className="text-sm text-gray-500 font-bold">Encontros:</span>
+                <button
+                  onClick={onAbrirEncontros}
+                  disabled={naoTemEncontros}
+                  className={`flex-1 h-9 px-2 text-sm border rounded-md flex items-center transition-colors ${
+                    naoTemEncontros
+                      ? "bg-gray-100 text-gray-400 cursor-not-allowed opacity-60"
+                      : "bg-white hover:bg-gray-50 cursor-pointer text-black"
+                  }`}
+                >
+                  <NotebookPen className={`w-4 h-4 flex-shrink-0 mr-2 ${naoTemEncontros ? "text-gray-400" : "text-gray-500"}`} />
+                  <span>Ver encontros</span>
+                </button>
+              </div>
+            )}
+
+            {/* Botão Acompanhamento - aparece apenas para mentorias ativas, concluídas ou pausadas */}
+            {!isMentoriaNova && abaAtiva !== "pendentes" && abaAtiva !== "expiradas" && (
+              <div className="flex items-center gap-2">
+                <span className="text-sm text-gray-500 font-bold">Acompanhamento:</span>
+                <button
+                  onClick={onAbrirAcompanhamento}
+                  className="flex-1 h-9 px-2 text-sm border rounded-md flex items-center transition-colors bg-white hover:bg-gray-50 cursor-pointer text-black"
+                >
+                  <NotebookPen className="w-4 h-4 flex-shrink-0 mr-2 text-gray-500" />
+                  <span>Acompanhamento</span>
+                </button>
+              </div>
+            )}
+
+
+
+
           </div>
         </div>
       </div>
 
       {/* Modal de busca/seleção de mentor */}
-      {showMentorModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center">
-          <div
-            className="absolute inset-0 bg-black/40"
-            onClick={() => setShowMentorModal(false)}
-          />
-          <div className="relative bg-white rounded-lg shadow-lg w-full max-w-md p-4 z-50">
-            <div className="flex items-center justify-between mb-3">
-              <h4 className="text-base font-semibold">Buscar mentor</h4>
-              <button
-                type="button"
-                onClick={() => setShowMentorModal(false)}
-                className="text-sm text-gray-600 hover:text-gray-800"
-              >
-                Fechar
-              </button>
-            </div>
-
-            <input
-              type="text"
-              value={buscarMentor}
-              onChange={(e) => setBuscarMentor(e.target.value)}
-              placeholder="Pesquisar por nome..."
-              className="w-full border rounded px-3 py-2 mb-3 text-sm"
-            />
-
-            <div className="max-h-64 overflow-auto divide-y border-t border-b">
-              {mentoresFiltrados.length === 0 ? (
-                <div className="p-3 text-sm text-gray-500">Nenhum mentor encontrado</div>
-              ) : (
-                mentoresFiltrados.map((m) => (
-                  <button
-                    key={m.id}
-                    type="button"
-                    onClick={() => selecionarMentor(m.id)}
-                    className="w-full text-left p-3 hover:bg-gray-50 transition-colors"
-                  >
-                    <div className="font-medium text-sm">{m.nome}</div>
-                    {m.email && <div className="text-xs text-gray-500">{m.email}</div>}
-                  </button>
-                ))
-              )}
-            </div>
-          </div>
-        </div>
-      )}
+      <BuscarMentorModal
+        isOpen={showMentorModal}
+        onClose={() => setShowMentorModal(false)}
+        mentores={state.mentores}
+        onSelecionar={selecionarMentor}
+      />
 
       {/* Footer com info adicional */}
-      <div className="px-4 py-2 bg-gray-50 border-t text-xs text-gray-500 flex items-center justify-between">
-        <span>
-          Atualizado: {new Date(mentoria.ultimaAtualizacaoISO).toLocaleDateString('pt-BR')}
-        </span>
+      <div className="px-4 py-2 bg-primary-50 border-t text-xs text-gray-500">
+        <div className="flex items-center justify-between flex-wrap gap-2">
+          {abaAtiva === "pendentes" ? (
+            // Aba Pendentes: apenas data da solicitação
+            <span>
+              <strong>Solicitação feita em:</strong> {new Date(mentoria.dataCriacaoISO).toLocaleDateString('pt-BR')}
+            </span>
+          ) : abaAtiva === "expiradas" ? (
+            // Aba Expiradas: apenas início e tempo que ficou aberta
+            <div className="flex items-center gap-4">
+              <span>
+                <strong>Início:</strong> {new Date(mentoria.dataCriacaoISO).toLocaleDateString('pt-BR')}
+              </span>
+              <span>
+                <strong>Tempo não aceita:</strong> {calcularTempoAberto(mentoria.dataCriacaoISO, mentoria.ultimaAtualizacaoISO, localStatus)}
+              </span>
+            </div>
+          ) : (
+            // Outras abas: informações completas
+            <div className="flex items-center gap-4">
+              <span>
+                <strong>Início:</strong> {new Date(mentoria.dataCriacaoISO).toLocaleDateString('pt-BR')}
+              </span>
+              <span>
+                <strong>Atualizado:</strong> {new Date(mentoria.ultimaAtualizacaoISO).toLocaleDateString('pt-BR')}
+              </span>
+              <span>
+                <strong>{localStatus === "concluida" ? "Duração:" : "Tempo aberto:"}</strong> {calcularTempoAberto(mentoria.dataCriacaoISO, mentoria.ultimaAtualizacaoISO, localStatus)}
+              </span>
+            </div>
+          )}
+          {/* Botão para reabrir mentoria cancelada */}
+          {abaAtiva === "canceladas" && localStatus === "cancelada" && (
+            <button
+              onClick={() => {
+                // Cria uma nova mentoria baseada na atual, mas sem histórico
+                const novaMentoria: any = {
+                  id: `mentoria-${Date.now()}`,
+                  empreendedor: mentoria.empreendedor,
+                  negocio: mentoria.negocio,
+                  projetoId: mentoria.projetoId,
+                  status: "nova" as StatusMentoria,
+                  desafio: mentoria.desafio,
+                  dataCriacaoISO: new Date().toISOString(),
+                  ultimaAtualizacaoISO: new Date().toISOString(),
+                };
+                dispatch({ 
+                  type: "ADICIONAR_MENTORIA", 
+                  payload: { mentoria: novaMentoria } 
+                });
+              }}
+              className="h-7 px-3 text-xs bg-green-600 text-white hover:bg-green-700 rounded-md transition-colors"
+            >
+              Reabrir Mentoria
+            </button>
+          )}
+        </div>
       </div>
     </div>
+
+    
   );
+}
+
+// Função auxiliar para calcular tempo aberto/duração
+function calcularTempoAberto(dataCriacaoISO: string, ultimaAtualizacaoISO: string, status: string): string {
+  const inicio = new Date(dataCriacaoISO);
+  
+  // Para mentorias concluídas, usa a data de atualização como data de conclusão
+  // Para outras, usa a data atual
+  const dataFim = status === "concluida" 
+    ? new Date(ultimaAtualizacaoISO)
+    : new Date();
+  
+  const diffMs = dataFim.getTime() - inicio.getTime();
+  const diffDias = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+  
+  // Cálculo mais preciso de meses e anos
+  const inicioAno = inicio.getFullYear();
+  const inicioMes = inicio.getMonth();
+  const fimAno = dataFim.getFullYear();
+  const fimMes = dataFim.getMonth();
+  
+  const diffAnos = fimAno - inicioAno;
+  const diffMeses = diffAnos * 12 + (fimMes - inicioMes);
+  
+  // Ajusta meses baseado nos dias
+  const inicioDia = inicio.getDate();
+  const fimDia = dataFim.getDate();
+  let mesesAjustados = diffMeses;
+  if (fimDia < inicioDia) {
+    mesesAjustados = Math.max(0, diffMeses - 1);
+  }
+
+  if (diffAnos > 0) {
+    return `${diffAnos} ${diffAnos === 1 ? 'ano' : 'anos'}`;
+  } else if (mesesAjustados > 0) {
+    return `${mesesAjustados} ${mesesAjustados === 1 ? 'mês' : 'meses'}`;
+  } else if (diffDias > 0) {
+    return `${diffDias} ${diffDias === 1 ? 'dia' : 'dias'}`;
+  } else {
+    const diffHoras = Math.floor(diffMs / (1000 * 60 * 60));
+    if (diffHoras > 0) {
+      return `${diffHoras} ${diffHoras === 1 ? 'hora' : 'horas'}`;
+    } else {
+      const diffMinutos = Math.floor(diffMs / (1000 * 60));
+      return `${diffMinutos} ${diffMinutos === 1 ? 'minuto' : 'minutos'}`;
+    }
+  }
 }
 
 // Componentes auxiliares

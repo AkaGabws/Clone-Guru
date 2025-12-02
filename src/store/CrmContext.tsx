@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useReducer, useMemo, ReactNode, useEffect } from "react";
-import { CRMState, Mentoria, Mentor, Relato, StatusMentoria } from "../types/crm";
+import { CRMState, Mentoria, Mentor, Relato, StatusMentoria, StatusAcompanhamento } from "../types/crm";
 import { crmMock } from "../data/crmMock";
 
 type Action =
@@ -10,7 +10,9 @@ type Action =
   | { type: "ADICIONAR_RELATO"; payload: { relato: Relato } }
   | { type: "EDITAR_RELATO"; payload: { relatoId: string; relato: Partial<Relato> } }
   | { type: "EXCLUIR_RELATO"; payload: { relatoId: string } }
-  | { type: "ATUALIZAR_PROXIMO_ENCONTRO"; payload: { mentoriaId: string; dataISO?: string; horario?: string } };
+  | { type: "ATUALIZAR_PROXIMO_ENCONTRO"; payload: { mentoriaId: string; dataISO?: string; horario?: string } }
+  | { type: "ATUALIZAR_ACOMPANHAMENTO"; payload: { mentoriaId: string; acompanhamento: Partial<Pick<Mentoria, "numEncontrosPlataforma" | "numEncontrosAcompanhamento" | "observacaoEmpreendedor" | "observacaoMentor" | "motivoCancelamento" | "statusAcompanhamento">> } }
+  | { type: "ADICIONAR_MENTORIA"; payload: { mentoria: Mentoria } };
 
 const CrmContext = createContext<{
   state: CRMState;
@@ -77,6 +79,25 @@ function crmReducer(state: CRMState, action: Action): CRMState {
             }
           : m
       );
+      return { ...state, mentorias };
+    }
+
+    case "ATUALIZAR_ACOMPANHAMENTO": {
+      const { mentoriaId, acompanhamento } = action.payload;
+      const mentorias = state.mentorias.map((m) =>
+        m.id === mentoriaId
+          ? {
+              ...m,
+              ...acompanhamento,
+              ultimaAtualizacaoISO: new Date().toISOString(),
+            }
+          : m
+      );
+      return { ...state, mentorias };
+    }
+
+    case "ADICIONAR_MENTORIA": {
+      const mentorias = [...state.mentorias, action.payload.mentoria];
       return { ...state, mentorias };
     }
 

@@ -6,6 +6,18 @@ export type StatusMentoria =
   | "cancelada"
   | "expirada";
 
+export type StatusAcompanhamento =
+  | "mentoria_ocorrendo"
+  | "mentoria_nao_iniciada"
+  | "mentoria_parada"
+  | "aguardando_retorno_empreendedor"
+  | "aguardando_retorno_mentor"
+  | "mentor_empreendedor_nao_responde"
+  | "mentoria_finalizada"
+  | "mentoria_cancelada"
+  | "empreendedor_desistiu"
+  | "mentoria_atrasada";
+
 export interface Projeto {
   id: string;
   nome: string; // ex.: "Negócio Raiz", "Mentoria Gratuita"
@@ -47,6 +59,13 @@ export interface Mentoria {
   progresso?: number;    // 0-100 caso use
   proximoEncontroDataISO?: string; // Data do próximo encontro (YYYY-MM-DD)
   proximoEncontroHorario?: string; // Horário do próximo encontro (HH:mm)
+  motivoCancelamento?: string; // Motivo do cancelamento (quando status é "cancelada")
+  // Campos de acompanhamento interno
+  numEncontrosPlataforma?: number; // Número de encontros registrados na plataforma
+  numEncontrosAcompanhamento?: number; // Número de encontros no registro de acompanhamento
+  observacaoEmpreendedor?: string; // Observação/Histórico do Empreendedor
+  observacaoMentor?: string; // Observação/Histórico do Mentor
+  statusAcompanhamento?: StatusAcompanhamento; // Status de acompanhamento interno
 }
 
 export interface CRMState {

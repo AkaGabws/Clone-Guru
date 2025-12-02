@@ -110,6 +110,46 @@ export const crmMock: CRMState = {
       const ln = lastNames[(i * 5 + 1) % lastNames.length];
       const empreendedor = `${fn} ${ln}`;
 
+      // Status de acompanhamento baseado no status e índice
+      const statusAcompanhamentos: any[] = [
+        "mentoria_ocorrendo",
+        "mentoria_nao_iniciada",
+        "mentoria_parada",
+        "aguardando_retorno_empreendedor",
+        "aguardando_retorno_mentor",
+        "mentor_empreendedor_nao_responde",
+        "mentoria_finalizada",
+        "mentoria_cancelada",
+        "empreendedor_desistiu",
+        "mentoria_atrasada",
+      ];
+      
+      // Define status de acompanhamento baseado no status da mentoria
+      let statusAcompanhamento: string | undefined;
+      if (status === "ativa") {
+        statusAcompanhamento = statusAcompanhamentos[i % 6]; // Varia entre os primeiros 6
+      } else if (status === "concluida") {
+        statusAcompanhamento = "mentoria_finalizada";
+      } else if (status === "cancelada") {
+        statusAcompanhamento = i % 2 === 0 ? "mentoria_cancelada" : "empreendedor_desistiu";
+      } else if (status === "nova") {
+        statusAcompanhamento = "mentoria_nao_iniciada";
+      } else if (status === "pausada") {
+        statusAcompanhamento = "mentoria_parada";
+      }
+
+      // Dados de acompanhamento mockados
+      const temAcompanhamento = i % 3 !== 0; // ~67% têm acompanhamento
+      const numEncontrosAcompanhamento = temAcompanhamento && hasMentor 
+        ? Math.floor(pseudoRandom(i + 100) * 10) + 1 
+        : undefined;
+      const observacaoEmpreendedor = temAcompanhamento && i % 4 === 0
+        ? `Empreendedor ${i % 2 === 0 ? 'está motivado' : 'precisa de mais suporte'} com as novas ferramentas apresentadas.`
+        : undefined;
+      const observacaoMentor = temAcompanhamento && i % 5 === 0
+        ? `${new Date(updated).toLocaleDateString('pt-BR')}: ${i % 3 === 0 ? 'Mentoria seguindo bem' : 'Precisa acompanhar mais de perto'}.`
+        : undefined;
+
       itens.push({
         id,
         empreendedor,
@@ -121,6 +161,10 @@ export const crmMock: CRMState = {
         dataCriacaoISO: created,
         ultimaAtualizacaoISO: updated,
         progresso,
+        statusAcompanhamento,
+        numEncontrosAcompanhamento,
+        observacaoEmpreendedor,
+        observacaoMentor,
       });
     }
 
