@@ -11,7 +11,7 @@ type Action =
   | { type: "EDITAR_RELATO"; payload: { relatoId: string; relato: Partial<Relato> } }
   | { type: "EXCLUIR_RELATO"; payload: { relatoId: string } }
   | { type: "ATUALIZAR_PROXIMO_ENCONTRO"; payload: { mentoriaId: string; dataISO?: string; horario?: string } }
-  | { type: "ATUALIZAR_ACOMPANHAMENTO"; payload: { mentoriaId: string; acompanhamento: Partial<Pick<Mentoria, "numEncontrosPlataforma" | "numEncontrosAcompanhamento" | "observacaoEmpreendedor" | "observacaoMentor" | "motivoCancelamento" | "statusAcompanhamento">> } }
+  | { type: "ATUALIZAR_ACOMPANHAMENTO"; payload: { mentoriaId: string; registradoPor?: string; acompanhamento: Partial<Pick<Mentoria, "numEncontrosPlataforma" | "numEncontrosAcompanhamento" | "observacaoEmpreendedor" | "observacaoMentor" | "motivoCancelamento" | "statusAcompanhamento">> } }
   | { type: "ADICIONAR_MENTORIA"; payload: { mentoria: Mentoria } };
 
 const CrmContext = createContext<{
@@ -83,16 +83,48 @@ function crmReducer(state: CRMState, action: Action): CRMState {
     }
 
     case "ATUALIZAR_ACOMPANHAMENTO": {
-      const { mentoriaId, acompanhamento } = action.payload;
-      const mentorias = state.mentorias.map((m) =>
-        m.id === mentoriaId
-          ? {
-              ...m,
-              ...acompanhamento,
-              ultimaAtualizacaoISO: new Date().toISOString(),
-            }
-          : m
-      );
+      const { mentoriaId, registradoPor, acompanhamento } = action.payload;
+      const agora = new Date().toISOString();
+      const mentorias = state.mentorias.map((m) => {
+        if (m.id !== mentoriaId) return m;
+        
+        const updates: Partial<Mentoria> = {
+          ...acompanhamento,
+          ultimaAtualizacaoISO: agora,
+        };
+        
+        // Rastreia quem fez o registro geral
+        if (registradoPor) {
+          updates.ultimoRegistroPor = registradoPor;
+          updates.ultimoRegistroDataISO = agora;
+        }
+        
+        // Rastreia alteração no status de acompanhamento
+        if (acompanhamento.statusAcompanhamento !== undefined && 
+            acompanhamento.statusAcompanhamento !== m.statusAcompanhamento && 
+            registradoPor) {
+          updates.statusAcompanhamentoPor = registradoPor;
+          updates.statusAcompanhamentoDataISO = agora;
+        }
+        
+        // Rastreia alteração na observação do empreendedor
+        if (acompanhamento.observacaoEmpreendedor !== undefined && 
+            acompanhamento.observacaoEmpreendedor !== m.observacaoEmpreendedor && 
+            registradoPor) {
+          updates.observacaoEmpreendedorPor = registradoPor;
+          updates.observacaoEmpreendedorDataISO = agora;
+        }
+        
+        // Rastreia alteração na observação do mentor
+        if (acompanhamento.observacaoMentor !== undefined && 
+            acompanhamento.observacaoMentor !== m.observacaoMentor && 
+            registradoPor) {
+          updates.observacaoMentorPor = registradoPor;
+          updates.observacaoMentorDataISO = agora;
+        }
+        
+        return { ...m, ...updates };
+      });
       return { ...state, mentorias };
     }
 

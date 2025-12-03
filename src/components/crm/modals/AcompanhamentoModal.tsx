@@ -1,8 +1,15 @@
 import React from "react";
 import { useCrm } from "../../../store/CrmContext";
 import { Button } from "../../../components/ui/button";
-import { Calendar, FileText, User, MessageSquare } from "lucide-react";
+import { Calendar, FileText, User, MessageSquare, UserCheck } from "lucide-react";
 import { StatusAcompanhamento } from "../../../types/crm";
+
+// Lista de funcionários para seleção
+const FUNCIONARIOS = [
+  "Leonardo",
+  "Suellen", 
+  "Jheni",
+];
 
 interface AcompanhamentoModalProps {
   mentoriaId: string;
@@ -62,6 +69,7 @@ export function AcompanhamentoModal({ mentoriaId, onClose }: AcompanhamentoModal
   const [motivoFinalizacao, setMotivoFinalizacao] = React.useState<string>(
     mentoria?.motivoCancelamento ?? ""
   );
+  const [registradoPor, setRegistradoPor] = React.useState<string>("");
 
   // Sincroniza quando a mentoria muda
   React.useEffect(() => {
@@ -91,12 +99,19 @@ export function AcompanhamentoModal({ mentoriaId, onClose }: AcompanhamentoModal
 
   const handleSalvar = () => {
     if (!mentoria) return;
+    
+    // Valida se informou quem está registrando
+    if (!registradoPor) {
+      alert("Por favor, selecione quem está registrando o acompanhamento.");
+      return;
+    }
 
     // Atualiza o acompanhamento
     dispatch({
       type: "ATUALIZAR_ACOMPANHAMENTO",
       payload: {
         mentoriaId: mentoria.id,
+        registradoPor,
         acompanhamento: {
           statusAcompanhamento: statusAcompanhamento || undefined,
           numEncontrosAcompanhamento,
@@ -152,6 +167,33 @@ export function AcompanhamentoModal({ mentoriaId, onClose }: AcompanhamentoModal
         {/* Corpo com Scroll */}
         <div className="overflow-y-auto p-6 space-y-6 flex-1">
           
+          {/* Campo obrigatório: Quem está registrando */}
+          <div className="p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+            <label className="text-sm font-bold text-yellow-800 flex items-center gap-2 mb-2">
+              <UserCheck className="w-4 h-4" />
+              Quem está registrando? *
+            </label>
+            <select
+              value={registradoPor}
+              onChange={(e) => setRegistradoPor(e.target.value)}
+              className={`w-full text-sm border rounded-md px-3 py-2 bg-white ${!registradoPor ? 'border-yellow-400' : 'border-green-400'}`}
+              required
+            >
+              <option value="">Selecione seu nome...</option>
+              {FUNCIONARIOS.map((nome) => (
+                <option key={nome} value={nome}>
+                  {nome}
+                </option>
+              ))}
+            </select>
+            {mentoria.ultimoRegistroPor && (
+              <p className="text-xs text-gray-500 mt-2">
+                Último registro por <strong>{mentoria.ultimoRegistroPor}</strong>
+                {mentoria.ultimoRegistroDataISO && ` em ${new Date(mentoria.ultimoRegistroDataISO).toLocaleDateString('pt-BR')}`}
+              </p>
+            )}
+          </div>
+
           {/* Informações Principais */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-1">
@@ -212,6 +254,12 @@ export function AcompanhamentoModal({ mentoriaId, onClose }: AcompanhamentoModal
                   </option>
                 ))}
               </select>
+              {mentoria.statusAcompanhamentoPor && (
+                <p className="text-xs text-blue-500 mt-1">
+                  Alterado por <strong>{mentoria.statusAcompanhamentoPor}</strong>
+                  {mentoria.statusAcompanhamentoDataISO && ` em ${new Date(mentoria.statusAcompanhamentoDataISO).toLocaleDateString('pt-BR')}`}
+                </p>
+              )}
             </div>
 
             <div className="space-y-1">
@@ -231,10 +279,18 @@ export function AcompanhamentoModal({ mentoriaId, onClose }: AcompanhamentoModal
           {/* Observações */}
           <div className="space-y-4">
             <div className="space-y-1">
-              <label className="text-sm font-semibold text-gray-700 flex items-center gap-2">
-                <MessageSquare className="w-4 h-4" />
-                Observação/Histórico Empreendedor
-              </label>
+              <div className="flex items-center justify-between">
+                <label className="text-sm font-semibold text-gray-700 flex items-center gap-2">
+                  <MessageSquare className="w-4 h-4" />
+                  Observação/Histórico Empreendedor
+                </label>
+                {mentoria.observacaoEmpreendedorPor && (
+                  <span className="text-xs text-purple-500">
+                    Alterado por <strong>{mentoria.observacaoEmpreendedorPor}</strong>
+                    {mentoria.observacaoEmpreendedorDataISO && ` em ${new Date(mentoria.observacaoEmpreendedorDataISO).toLocaleDateString('pt-BR')}`}
+                  </span>
+                )}
+              </div>
               <textarea
                 value={observacaoEmpreendedor}
                 onChange={(e) => setObservacaoEmpreendedor(e.target.value)}
@@ -245,10 +301,18 @@ export function AcompanhamentoModal({ mentoriaId, onClose }: AcompanhamentoModal
             </div>
 
             <div className="space-y-1">
-              <label className="text-sm font-semibold text-gray-700 flex items-center gap-2">
-                <FileText className="w-4 h-4" />
-                Observação/Histórico Mentor
-              </label>
+              <div className="flex items-center justify-between">
+                <label className="text-sm font-semibold text-gray-700 flex items-center gap-2">
+                  <FileText className="w-4 h-4" />
+                  Observação/Histórico Mentor
+                </label>
+                {mentoria.observacaoMentorPor && (
+                  <span className="text-xs text-green-600">
+                    Alterado por <strong>{mentoria.observacaoMentorPor}</strong>
+                    {mentoria.observacaoMentorDataISO && ` em ${new Date(mentoria.observacaoMentorDataISO).toLocaleDateString('pt-BR')}`}
+                  </span>
+                )}
+              </div>
               <textarea
                 value={observacaoMentor}
                 onChange={(e) => setObservacaoMentor(e.target.value)}

@@ -331,6 +331,7 @@ export function MentoriaKanban() {
         )}
 
         {/* Filtro por Quantidade de Encontros */}
+        {abaAtiva !== "pendentes" && (
         <div className="flex items-center gap-1">
           <select
             className="border rounded-md h-9 px-2 text-sm bg-white"
@@ -364,6 +365,7 @@ export function MentoriaKanban() {
             </>
           )}
         </div>
+        )}
       </div>
       {/* Lista de mentorias */}
       <div className="space-y-3">
@@ -559,7 +561,7 @@ function MatchCard({ mentoria, projeto, mentor, onAbrirEncontros, onAbrirAcompan
             {!isMentoriaNova && mentoria.status !== "expirada" && abaAtiva !== "expiradas" && (
               <div className="mt-3 flex gap-3">
                 {/* Card de Informações sobre Encontros */}
-                <div className="flex-2 p-3 bg-gray-50 border border-gray-200 rounded-md">
+                <div className="flex-1 p-3 bg-gray-50 border border-gray-200 rounded-md">
                   <p className="text-xs font-semibold text-gray-700 mb-2">Último Encontro:</p>
                   {ultimoEncontro ? (
                     <>
@@ -581,15 +583,31 @@ function MatchCard({ mentoria, projeto, mentor, onAbrirEncontros, onAbrirAcompan
                 </div>
 
                 {/* Card de Acompanhamento */}
-                <div className="flex-3 p-3 bg-gray-50 border border-gray-200 rounded-md">
-                  <p className="text-xs font-semibold text-gray-700 mb-2">Acompanhamento:</p>
+                <div className="flex-1 p-3 bg-gray-50 border border-gray-200 rounded-md">
+                  <div className="flex items-center justify-between mb-2">
+                    <p className="text-xs font-semibold text-gray-700">Acompanhamento:</p>
+                    {mentoria.ultimoRegistroPor && (
+                      <span className="text-[10px] text-gray-400 italic">
+                        Últ. por {mentoria.ultimoRegistroPor}
+                        {mentoria.ultimoRegistroDataISO && ` em ${new Date(mentoria.ultimoRegistroDataISO).toLocaleDateString('pt-BR')}`}
+                      </span>
+                    )}
+                  </div>
                   <div className="space-y-1 text-xs">
                     {mentoria.statusAcompanhamento && (
-                      <div className="flex gap-2 items-center mb-2">
-                        <span className="text-gray-600 font-medium">Status:</span>
-                        <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${colorAcompanhamentoMap[mentoria.statusAcompanhamento] || 'bg-gray-100 text-gray-700'}`}>
-                          {STATUS_ACOMPANHAMENTO_MAP[mentoria.statusAcompanhamento] || mentoria.statusAcompanhamento}
-                        </span>
+                      <div className="mb-2">
+                        <div className="flex gap-2 items-center">
+                          <span className="text-gray-600 font-medium">Status:</span>
+                          <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${colorAcompanhamentoMap[mentoria.statusAcompanhamento] || 'bg-gray-100 text-gray-700'}`}>
+                            {STATUS_ACOMPANHAMENTO_MAP[mentoria.statusAcompanhamento] || mentoria.statusAcompanhamento}
+                          </span>
+                        </div>
+                        {mentoria.statusAcompanhamentoPor && (
+                          <span className="text-[10px] text-blue-500 italic ml-1">
+                            por {mentoria.statusAcompanhamentoPor}
+                            {mentoria.statusAcompanhamentoDataISO && ` (${new Date(mentoria.statusAcompanhamentoDataISO).toLocaleDateString('pt-BR')})`}
+                          </span>
+                        )}
                       </div>
                     )}
                     <div className="flex gap-2">
@@ -613,13 +631,29 @@ function MatchCard({ mentoria, projeto, mentor, onAbrirEncontros, onAbrirAcompan
                     )}
                     {mentoria.observacaoEmpreendedor && (
                       <div>
-                        <span className="text-gray-600 font-medium block">Obs. Empreendedor:</span>
+                        <div className="flex items-center gap-1">
+                          <span className="text-gray-600 font-medium">Obs. Empreendedor:</span>
+                          {mentoria.observacaoEmpreendedorPor && (
+                            <span className="text-[10px] text-purple-500 italic">
+                              por {mentoria.observacaoEmpreendedorPor}
+                              {mentoria.observacaoEmpreendedorDataISO && ` (${new Date(mentoria.observacaoEmpreendedorDataISO).toLocaleDateString('pt-BR')})`}
+                            </span>
+                          )}
+                        </div>
                         <p className="text-gray-800 line-clamp-2">{mentoria.observacaoEmpreendedor}</p>
                       </div>
                     )}
                     {mentoria.observacaoMentor && (
                       <div>
-                        <span className="text-gray-600 font-medium block">Obs. Mentor:</span>
+                        <div className="flex items-center gap-1">
+                          <span className="text-gray-600 font-medium">Obs. Mentor:</span>
+                          {mentoria.observacaoMentorPor && (
+                            <span className="text-[10px] text-green-600 italic">
+                              por {mentoria.observacaoMentorPor}
+                              {mentoria.observacaoMentorDataISO && ` (${new Date(mentoria.observacaoMentorDataISO).toLocaleDateString('pt-BR')})`}
+                            </span>
+                          )}
+                        </div>
                         <p className="text-gray-800 line-clamp-2">{mentoria.observacaoMentor}</p>
                       </div>
                     )}
@@ -662,16 +696,16 @@ function MatchCard({ mentoria, projeto, mentor, onAbrirEncontros, onAbrirAcompan
           </div>
 
           {/* Ações rápidas */}
-          <div className="flex flex-col gap-2 min-w-[200px]">
+          <div className="flex flex-col gap-2 w-[280px] shrink-0">
             {/* Exibe mentor como texto (substitui o dropdown) */}
             <div className="flex items-center gap-2">
-              <span className="text-sm text-gray-500 font-bold">Mentor:</span>
+              <span className="text-xs text-gray-500 font-bold w-20 shrink-0">Mentor:</span>
               <button 
                 onClick={() => setShowMentorModal(true)}
-                className="flex-1 h-9 px-2 text-sm border rounded-md bg-white flex items-center hover:bg-gray-50 transition-colors cursor-pointer"
+                className="flex-1 h-9 px-2 text-sm border rounded-md bg-white flex items-center hover:bg-gray-50 transition-colors cursor-pointer overflow-hidden"
               >
-                <User className="w-4 h-4 text-gray-500 flex-shrink-0 mr-2" />
-                <span className="flex-1 text-left">
+                <User className="w-4 h-4 text-gray-500 shrink-0 mr-2" />
+                <span className="flex-1 text-left truncate">
                   {localMentorId ? state.mentores.find((m) => m.id === localMentorId)?.nome || "Sem mentor" : "Sem mentor"}
                 </span>
               </button>
@@ -680,7 +714,7 @@ function MatchCard({ mentoria, projeto, mentor, onAbrirEncontros, onAbrirAcompan
             {/* Seletor de status - não aparece na aba pendentes */}
             {abaAtiva !== "pendentes" && (
               <div className="flex items-center gap-2">
-                <span className="text-sm text-gray-500 font-bold">Status:</span>
+                <span className="text-xs text-gray-500 font-bold w-20 shrink-0">Status:</span>
                 <select
                   className="flex-1 h-9 px-2 text-sm border rounded-md bg-white hover:bg-gray-50 transition-colors cursor-pointer"
                   value={localStatus}
@@ -721,18 +755,18 @@ function MatchCard({ mentoria, projeto, mentor, onAbrirEncontros, onAbrirAcompan
             {/* Botão Encontros - aparece apenas para mentorias ativas, concluídas ou pausadas */}
             {!isMentoriaNova && abaAtiva !== "pendentes" && abaAtiva !== "expiradas" && (
               <div className="flex items-center gap-2">
-                <span className="text-sm text-gray-500 font-bold">Encontros:</span>
+                <span className="text-xs text-gray-500 font-bold w-20 shrink-0">Encontros:</span>
                 <button
                   onClick={onAbrirEncontros}
                   disabled={naoTemEncontros}
-                  className={`flex-1 h-9 px-2 text-sm border rounded-md flex items-center transition-colors ${
+                  className={`flex-1 h-9 px-2 text-sm border rounded-md flex items-center transition-colors overflow-hidden ${
                     naoTemEncontros
                       ? "bg-gray-100 text-gray-400 cursor-not-allowed opacity-60"
                       : "bg-white hover:bg-gray-50 cursor-pointer text-black"
                   }`}
                 >
-                  <NotebookPen className={`w-4 h-4 flex-shrink-0 mr-2 ${naoTemEncontros ? "text-gray-400" : "text-gray-500"}`} />
-                  <span>Ver encontros</span>
+                  <NotebookPen className={`w-4 h-4 shrink-0 mr-2 ${naoTemEncontros ? "text-gray-400" : "text-gray-500"}`} />
+                  <span className="truncate">Ver encontros</span>
                 </button>
               </div>
             )}
@@ -740,20 +774,16 @@ function MatchCard({ mentoria, projeto, mentor, onAbrirEncontros, onAbrirAcompan
             {/* Botão Acompanhamento - aparece apenas para mentorias ativas, concluídas ou pausadas */}
             {!isMentoriaNova && abaAtiva !== "pendentes" && abaAtiva !== "expiradas" && (
               <div className="flex items-center gap-2">
-                <span className="text-sm text-gray-500 font-bold">Acompanhamento:</span>
+                <span className="text-xs text-gray-500 font-bold w-20 shrink-0">Acomp.:</span>
                 <button
                   onClick={onAbrirAcompanhamento}
-                  className="flex-1 h-9 px-2 text-sm border rounded-md flex items-center transition-colors bg-white hover:bg-gray-50 cursor-pointer text-black"
+                  className="flex-1 h-9 px-2 text-sm border rounded-md flex items-center transition-colors bg-white hover:bg-gray-50 cursor-pointer text-black overflow-hidden"
                 >
-                  <NotebookPen className="w-4 h-4 flex-shrink-0 mr-2 text-gray-500" />
-                  <span>Acompanhamento</span>
+                  <NotebookPen className="w-4 h-4 shrink-0 mr-2 text-gray-500" />
+                  <span className="truncate">Acompanhamento</span>
                 </button>
               </div>
             )}
-
-
-
-
           </div>
         </div>
       </div>

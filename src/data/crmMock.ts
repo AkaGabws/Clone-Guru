@@ -141,17 +141,76 @@ export const crmMock: CRMState = {
         statusAcompanhamento = "mentoria_parada";
       }
 
-      // Dados de acompanhamento mockados
-      const temAcompanhamento = i % 3 !== 0; // ~67% têm acompanhamento
+      // Dados de acompanhamento mockados - mais ricos e realistas
+      const temAcompanhamento = i % 5 !== 0; // ~80% têm acompanhamento
       const numEncontrosAcompanhamento = temAcompanhamento && hasMentor 
-        ? Math.floor(pseudoRandom(i + 100) * 10) + 1 
+        ? Math.floor(pseudoRandom(i + 100) * 12) + 1 
         : undefined;
-      const observacaoEmpreendedor = temAcompanhamento && i % 4 === 0
-        ? `Empreendedor ${i % 2 === 0 ? 'está motivado' : 'precisa de mais suporte'} com as novas ferramentas apresentadas.`
+      
+      // Observações ricas e variadas para empreendedores
+      const observacoesEmpreendedorLista = [
+        `Empreendedor muito motivado e engajado. Implementou todas as sugestões do último encontro com sucesso.`,
+        `Demonstra dificuldade em organizar o tempo para aplicar as estratégias. Necessita de acompanhamento mais frequente.`,
+        `Teve uma melhora significativa nas vendas após aplicar técnicas de precificação discutidas na mentoria.`,
+        `Está passando por momento difícil pessoal, mas mantém o negócio funcionando. Sugerir mais flexibilidade.`,
+        `Muito receptivo às ideias, porém precisa de mais apoio na área financeira. Considerar workshops adicionais.`,
+        `Empreendedor já possui boa base de conhecimento. Focar em estratégias avançadas de crescimento.`,
+        `Relata que a mentoria tem sido transformadora. Conseguiu seu primeiro cliente grande após implementar MVP.`,
+        `Precisa de mais suporte em marketing digital. Tem dificuldade com redes sociais.`,
+        `Excelente progresso! Dobrou o faturamento no último mês. Agora quer expandir para delivery.`,
+        `Empreendedor tímido, mas com muito potencial. Trabalhar autoconfiança e técnicas de venda.`,
+        `Apresentou o pitch para investidores. Recebeu feedback positivo mas precisa refinar proposta de valor.`,
+        `Teve problemas com fornecedor e precisou pausar operações. Retornando gradualmente.`,
+        `Está considerando contratar primeiro funcionário. Discutir aspectos legais e financeiros.`,
+        `Lançou produto novo com sucesso. Vendas superaram expectativas. Manter monitoramento.`,
+        `Enfrenta concorrência forte na região. Trabalhando diferenciação e proposta única de valor.`,
+      ];
+      
+      // Observações ricas e variadas para mentores
+      const observacoesMentorLista = [
+        `${new Date(updated).toLocaleDateString('pt-BR')}: Encontro produtivo. Empreendedor demonstrou evolução significativa desde o início. Próximos passos: definir metas de vendas para o mês.`,
+        `${new Date(updated).toLocaleDateString('pt-BR')}: Notei que precisa de mais apoio na gestão financeira. Enviei planilhas de controle. Agendar próximo encontro focado em fluxo de caixa.`,
+        `${new Date(updated).toLocaleDateString('pt-BR')}: Sessão focada em marketing. Criamos calendário de conteúdo para redes sociais. Empreendedor muito animado com as novas estratégias.`,
+        `${new Date(updated).toLocaleDateString('pt-BR')}: Discutimos precificação. Identificamos que estava vendendo abaixo do mercado. Ajustamos preços e criamos pacotes promocionais.`,
+        `${new Date(updated).toLocaleDateString('pt-BR')}: Mentoria seguindo conforme planejado. Empreendedor cumpriu todas as tarefas. Próximo passo: análise de concorrência.`,
+        `${new Date(updated).toLocaleDateString('pt-BR')}: Encontro de alinhamento. Revisamos metas e ajustamos cronograma. Empreendedor precisou de mais tempo para implementar mudanças.`,
+        `${new Date(updated).toLocaleDateString('pt-BR')}: Sessão prática de vendas. Simulamos atendimento ao cliente. Identificamos pontos de melhoria na abordagem.`,
+        `${new Date(updated).toLocaleDateString('pt-BR')}: Revisamos plano de negócios. Atualizamos projeções financeiras com dados reais dos últimos 3 meses.`,
+        `${new Date(updated).toLocaleDateString('pt-BR')}: Foco em liderança. Empreendedor vai contratar primeiro funcionário. Discutimos processo seletivo e integração.`,
+        `${new Date(updated).toLocaleDateString('pt-BR')}: Analisamos resultados do mês. Vendas cresceram 30%. Definimos estratégias para manter o crescimento.`,
+        `${new Date(updated).toLocaleDateString('pt-BR')}: Sessão de resolução de problemas. Empreendedor enfrentou crise com cliente. Trabalhamos gestão de conflitos.`,
+        `${new Date(updated).toLocaleDateString('pt-BR')}: Encontro de celebração! Empreendedor alcançou primeira meta importante. Definimos próximos desafios.`,
+        `${new Date(updated).toLocaleDateString('pt-BR')}: Precisamos acompanhar mais de perto. Empreendedor está sobrecarregado. Sugerir ferramentas de produtividade.`,
+        `${new Date(updated).toLocaleDateString('pt-BR')}: Mentoria entrando na reta final. Preparando empreendedor para caminhar sozinho. Foco em autonomia.`,
+        `${new Date(updated).toLocaleDateString('pt-BR')}: Ótimo progresso! Empreendedor está pronto para próximo nível. Recomendo participação em programa avançado.`,
+      ];
+      
+      const observacaoEmpreendedor = temAcompanhamento && i % 2 === 0
+        ? observacoesEmpreendedorLista[i % observacoesEmpreendedorLista.length]
         : undefined;
-      const observacaoMentor = temAcompanhamento && i % 5 === 0
-        ? `${new Date(updated).toLocaleDateString('pt-BR')}: ${i % 3 === 0 ? 'Mentoria seguindo bem' : 'Precisa acompanhar mais de perto'}.`
+      const observacaoMentor = temAcompanhamento && i % 2 !== 0
+        ? observacoesMentorLista[i % observacoesMentorLista.length]
         : undefined;
+
+      // Nomes dos funcionários que fazem os registros de acompanhamento
+      const funcionariosAcompanhamento = [
+        "Leonardo", "Suellen", "Jheni"
+      ];
+      
+      // Gera dados de rastreamento de quem fez os registros
+      const funcionarioIdx = i % funcionariosAcompanhamento.length;
+      const funcionarioObsEmp = funcionariosAcompanhamento[(i + 1) % funcionariosAcompanhamento.length];
+      const funcionarioObsMentor = funcionariosAcompanhamento[(i + 3) % funcionariosAcompanhamento.length];
+      const funcionarioStatus = funcionariosAcompanhamento[(i + 5) % funcionariosAcompanhamento.length];
+      
+      // Datas de registro (variando para parecer realista)
+      const dataRegistroBase = new Date(updatedTs);
+      const dataObsEmp = new Date(dataRegistroBase);
+      dataObsEmp.setDate(dataObsEmp.getDate() - Math.floor(pseudoRandom(i + 200) * 7));
+      const dataObsMentor = new Date(dataRegistroBase);
+      dataObsMentor.setDate(dataObsMentor.getDate() - Math.floor(pseudoRandom(i + 210) * 5));
+      const dataStatus = new Date(dataRegistroBase);
+      dataStatus.setDate(dataStatus.getDate() - Math.floor(pseudoRandom(i + 220) * 3));
 
       itens.push({
         id,
@@ -168,6 +227,15 @@ export const crmMock: CRMState = {
         numEncontrosAcompanhamento,
         observacaoEmpreendedor,
         observacaoMentor,
+        // Rastreamento de quem fez as alterações
+        ultimoRegistroPor: funcionariosAcompanhamento[funcionarioIdx],
+        ultimoRegistroDataISO: updated,
+        statusAcompanhamentoPor: statusAcompanhamento ? funcionarioStatus : undefined,
+        statusAcompanhamentoDataISO: statusAcompanhamento ? dataStatus.toISOString() : undefined,
+        observacaoEmpreendedorPor: observacaoEmpreendedor ? funcionarioObsEmp : undefined,
+        observacaoEmpreendedorDataISO: observacaoEmpreendedor ? dataObsEmp.toISOString() : undefined,
+        observacaoMentorPor: observacaoMentor ? funcionarioObsMentor : undefined,
+        observacaoMentorDataISO: observacaoMentor ? dataObsMentor.toISOString() : undefined,
       });
     }
 
@@ -188,14 +256,136 @@ export const crmMock: CRMState = {
     return itens;
   })(),
 
-  relatos: [
-    { id: "r1", mentoriaId: "s2", mentorId: "m2", dataISO: "2025-08-21T14:00:00.000Z", titulo: "Checkpoint", texto: "Definimos backlog das próximas 2 semanas." },
-    { id: "r2", mentoriaId: "s2", mentorId: "m2", dataISO: "2025-08-28T10:30:00.000Z", titulo: "Sessão 2", texto: "Validação de público-alvo e proposta de valor." },
-    { id: "r3", mentoriaId: "s4", mentorId: "m4", dataISO: "2025-08-22T10:00:00.000Z", titulo: "Primeira sessão", texto: "Mapeamos canais de venda e definimos próximos passos." },
-    { id: "r4", mentoriaId: "s6", mentorId: "m5", dataISO: "2025-08-20T16:00:00.000Z", titulo: "Sessão inicial", texto: "Análise de custos e sugestões de precificação." },
-    { id: "r5", mentoriaId: "s7", mentorId: "m6", dataISO: "2025-08-10T12:00:00.000Z", titulo: "Encerramento", texto: "Mentoria concluída com plano de ação para marketing digital." },
-    { id: "r6", mentoriaId: "s8", mentorId: "m7", dataISO: "2025-08-21T14:00:00.000Z", titulo: "Redes sociais", texto: "Definimos calendário de postagens e tipos de conteúdo." },
-    { id: "r7", mentoriaId: "s4", mentorId: "m4", dataISO: "2025-08-29T09:00:00.000Z", titulo: "Sessão 2", texto: "Avaliação dos resultados das vendas online." },
-  ],
+  relatos: (() => {
+    const titulos = [
+      "Primeira sessão",
+      "Alinhamento inicial",
+      "Diagnóstico do negócio",
+      "Análise de mercado",
+      "Estratégia de vendas",
+      "Marketing digital",
+      "Redes sociais",
+      "Gestão financeira",
+      "Fluxo de caixa",
+      "Precificação",
+      "Plano de negócios",
+      "Proposta de valor",
+      "Público-alvo",
+      "Canais de venda",
+      "Atendimento ao cliente",
+      "Fidelização",
+      "Crescimento",
+      "Expansão",
+      "Checkpoint semanal",
+      "Revisão de metas",
+      "Resolução de problemas",
+      "Feedback e ajustes",
+      "Preparação para pitch",
+      "Contratação de funcionário",
+      "Legalização do negócio",
+      "Parcerias estratégicas",
+      "Novos produtos",
+      "Análise de resultados",
+      "Celebração de conquistas",
+      "Encerramento",
+    ];
+
+    const textos = [
+      "Realizamos o diagnóstico inicial do negócio. Identificamos pontos fortes na qualidade do produto e oportunidades de melhoria na gestão financeira. Empreendedor muito receptivo às sugestões.",
+      "Mapeamos o público-alvo e criamos personas. Definimos estratégias de comunicação específicas para cada segmento identificado.",
+      "Análise detalhada da concorrência. Identificamos 5 concorrentes diretos e 3 indiretos. Criamos matriz comparativa e definimos diferenciais competitivos.",
+      "Sessão focada em precificação. Revisamos custos fixos e variáveis, margem de contribuição e ponto de equilíbrio. Ajustamos preços de 8 produtos.",
+      "Criamos calendário de conteúdo para Instagram e Facebook. Definimos linha editorial, frequência de posts e tipos de conteúdo (educativo, inspiracional, promocional).",
+      "Trabalhamos fluxo de caixa. Empreendedor agora controla entradas e saídas diariamente. Implementamos planilha de controle financeiro.",
+      "Desenvolvemos pitch de 3 minutos para captação de clientes. Praticamos técnicas de apresentação e trabalhamos linguagem corporal.",
+      "Mapeamos jornada do cliente. Identificamos 3 pontos de atrito no processo de compra. Criamos plano de ação para melhorias.",
+      "Sessão de brainstorming para novos produtos/serviços. Listamos 15 ideias e priorizamos 3 para desenvolvimento imediato.",
+      "Revisamos plano de negócios. Atualizamos análise SWOT e definimos metas SMART para os próximos 6 meses.",
+      "Trabalhamos técnicas de venda consultiva. Simulamos atendimentos e identificamos oportunidades de upsell e cross-sell.",
+      "Discutimos estratégias de fidelização. Criamos programa de pontos e definimos benefícios para clientes recorrentes.",
+      "Analisamos métricas do mês anterior. Vendas cresceram 25%! Identificamos canais mais efetivos e realocamos investimentos.",
+      "Sessão de resolução de problemas. Cliente insatisfeito gerou crise nas redes sociais. Trabalhamos gestão de crise e comunicação.",
+      "Preparação para contratação do primeiro funcionário. Revisamos aspectos legais, definimos perfil da vaga e critérios de seleção.",
+      "Exploramos oportunidades de parceria. Identificamos 5 negócios complementares para colaborações estratégicas.",
+      "Desenvolvemos proposta de valor única. Criamos slogan e mensagens-chave para comunicação da marca.",
+      "Trabalhamos gestão do tempo. Empreendedor estava sobrecarregado. Implementamos matriz de Eisenhower e rotina produtiva.",
+      "Sessão focada em delivery e vendas online. Configuramos conta no iFood e criamos loja no Instagram Shopping.",
+      "Discutimos legalização do negócio. Apresentamos opções de formalização (MEI, ME) e próximos passos para regularização.",
+      "Análise de fornecedores. Mapeamos 10 fornecedores, negociamos prazos e conseguimos redução de 15% nos custos.",
+      "Trabalhamos identidade visual. Definimos cores, tipografia e aplicações da marca. Empreendedor ficou muito satisfeito.",
+      "Sessão sobre gestão de estoque. Implementamos controle de entrada e saída, ponto de reposição e giro de estoque.",
+      "Exploramos canais de venda alternativos. Cadastramos em 3 marketplaces e participamos de grupo de vendas local.",
+      "Celebramos conquistas! Empreendedor bateu meta de faturamento pela primeira vez. Definimos próximos desafios.",
+      "Mentoria focada em autoconhecimento. Trabalhamos forças, fraquezas e estilo de liderança do empreendedor.",
+      "Discutimos expansão do negócio. Analisamos viabilidade de segunda unidade e franquias.",
+      "Sessão de follow-up. Empreendedor implementou 80% das ações acordadas. Ajustamos cronograma para pendências.",
+      "Trabalhamos apresentação para investidor. Revisamos deck, projeções financeiras e modelo de negócio.",
+      "Encerramento da mentoria. Revisamos toda a jornada, conquistas e aprendizados. Empreendedor muito grato!",
+    ];
+
+    const horarios = ["09:00", "10:00", "10:30", "11:00", "14:00", "15:00", "16:00", "17:00", "18:00", "19:00"];
+    const duracoes = [30, 45, 60, 60, 60, 90, 90, 120];
+
+    const relatosGerados: any[] = [];
+    let idCounter = 1;
+
+    // Gera relatos para as primeiras 60 mentorias ativas (com mentor)
+    for (let mentoriaIdx = 1; mentoriaIdx <= 80; mentoriaIdx++) {
+      const mentoriaId = `s${mentoriaIdx}`;
+      // Cada mentoria tem entre 2 e 8 encontros
+      const numEncontros = 2 + (mentoriaIdx % 7);
+      const mentorId = `m${(mentoriaIdx * 7) % 87 + 1}`;
+      
+      // Data base para os encontros desta mentoria
+      const baseDate = new Date(2025, 0, 15 + mentoriaIdx);
+      
+      for (let encontro = 0; encontro < numEncontros; encontro++) {
+        const encontroDate = new Date(baseDate);
+        encontroDate.setDate(baseDate.getDate() + (encontro * 7)); // Um encontro por semana
+        const horario = horarios[(encontro + mentoriaIdx) % horarios.length];
+        const [hora, minuto] = horario.split(':').map(Number);
+        encontroDate.setHours(hora, minuto, 0, 0);
+
+        // Evita datas futuras a Dezembro 2025
+        if (encontroDate > new Date(2025, 11, 3)) continue;
+
+        const titulo = encontro === 0 
+          ? titulos[0] // Primeira sessão
+          : encontro === numEncontros - 1 && mentoriaIdx % 4 === 0
+            ? titulos[titulos.length - 1] // Encerramento
+            : titulos[(encontro + mentoriaIdx) % (titulos.length - 2) + 1]; // Outros títulos
+
+        const texto = textos[(encontro + mentoriaIdx) % textos.length];
+        const duracao = duracoes[(encontro + mentoriaIdx) % duracoes.length];
+
+        relatosGerados.push({
+          id: `r${idCounter}`,
+          mentoriaId,
+          mentorId: mentoriaIdx % 5 !== 0 ? mentorId : undefined,
+          dataISO: encontroDate.toISOString(),
+          dataEncontroISO: encontroDate.toISOString(),
+          duracaoMinutos: duracao,
+          titulo,
+          texto,
+        });
+
+        idCounter++;
+      }
+    }
+
+    // Preserva alguns relatos especiais para mentoria s2 (Francisco Oceano)
+    const relatosS2 = [
+      { id: `r${idCounter++}`, mentoriaId: "s2", mentorId: "m2", dataISO: "2025-08-21T14:00:00.000Z", dataEncontroISO: "2025-08-21T14:00:00.000Z", duracaoMinutos: 60, titulo: "Checkpoint criativo", texto: "Definimos backlog das próximas 2 semanas focando no novo álbum. Francisco apresentou 5 faixas em desenvolvimento." },
+      { id: `r${idCounter++}`, mentoriaId: "s2", mentorId: "m2", dataISO: "2025-08-28T10:30:00.000Z", dataEncontroISO: "2025-08-28T10:30:00.000Z", duracaoMinutos: 90, titulo: "Estratégia de lançamento", texto: "Validação de público-alvo e proposta de valor para o álbum. Criamos cronograma de lançamento com teasers e single." },
+      { id: `r${idCounter++}`, mentoriaId: "s2", mentorId: "m2", dataISO: "2025-09-04T14:00:00.000Z", dataEncontroISO: "2025-09-04T14:00:00.000Z", duracaoMinutos: 60, titulo: "Marketing musical", texto: "Desenvolvemos estratégia de divulgação em plataformas de streaming. Configuramos Spotify for Artists e planejamos playlist pitching." },
+      { id: `r${idCounter++}`, mentoriaId: "s2", mentorId: "m2", dataISO: "2025-09-11T10:00:00.000Z", dataEncontroISO: "2025-09-11T10:00:00.000Z", duracaoMinutos: 75, titulo: "Parcerias e collabs", texto: "Mapeamos artistas para possíveis parcerias. Francisco vai contatar 3 produtores para features no álbum." },
+      { id: `r${idCounter++}`, mentoriaId: "s2", mentorId: "m2", dataISO: "2025-09-18T15:00:00.000Z", dataEncontroISO: "2025-09-18T15:00:00.000Z", duracaoMinutos: 60, titulo: "Monetização", texto: "Discutimos formas de monetização além do streaming: shows, merch, licenciamento. Francisco animado com as possibilidades." },
+      { id: `r${idCounter++}`, mentoriaId: "s2", mentorId: "m2", dataISO: "2025-09-25T14:00:00.000Z", dataEncontroISO: "2025-09-25T14:00:00.000Z", duracaoMinutos: 90, titulo: "Review do single", texto: "Primeiro single pronto! Ouvimos juntos e demos feedback. Definimos data de lançamento para outubro." },
+      { id: `r${idCounter++}`, mentoriaId: "s2", mentorId: "m2", dataISO: "2025-10-02T10:30:00.000Z", dataEncontroISO: "2025-10-02T10:30:00.000Z", duracaoMinutos: 60, titulo: "Preparação de lançamento", texto: "Criamos press release e lista de imprensa. Francisco gravou conteúdo para redes sociais." },
+      { id: `r${idCounter++}`, mentoriaId: "s2", mentorId: "m2", dataISO: "2025-10-09T14:00:00.000Z", dataEncontroISO: "2025-10-09T14:00:00.000Z", duracaoMinutos: 45, titulo: "Análise pós-lançamento", texto: "Single lançado! 5000 streams na primeira semana. Analisamos métricas e planejamos próximos passos." },
+    ];
+
+    return [...relatosGerados, ...relatosS2];
+  })(),
   filtro: { status: "todas", mentorId: "todos", projetoId: "todos", busca: "" },
 };

@@ -67,6 +67,16 @@ export interface Mentoria {
   observacaoEmpreendedor?: string; // Observação/Histórico do Empreendedor
   observacaoMentor?: string; // Observação/Histórico do Mentor
   statusAcompanhamento?: StatusAcompanhamento; // Status de acompanhamento interno
+  
+  // Rastreamento de quem fez as alterações no acompanhamento
+  ultimoRegistroPor?: string; // Nome de quem fez a última alteração geral
+  ultimoRegistroDataISO?: string; // Data da última alteração geral
+  statusAcompanhamentoPor?: string; // Quem alterou o status de acompanhamento
+  statusAcompanhamentoDataISO?: string; // Quando alterou o status
+  observacaoEmpreendedorPor?: string; // Quem alterou a obs do empreendedor
+  observacaoEmpreendedorDataISO?: string; // Quando alterou a obs do empreendedor
+  observacaoMentorPor?: string; // Quem alterou a obs do mentor
+  observacaoMentorDataISO?: string; // Quando alterou a obs do mentor
 }
 
 export interface CRMState {
