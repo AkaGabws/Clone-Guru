@@ -221,16 +221,16 @@ function VinculacaoMentores() {
 
         {/* Modal de Vinculação por Projeto */}
         {showModal && projetoSelecionado && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4" onClick={fecharModal}>
-            <div className="bg-white rounded-lg shadow-xl w-full max-w-5xl max-h-[90vh] flex flex-col" onClick={(e) => e.stopPropagation()}>
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4 " onClick={fecharModal}>
+            <div className="bg-white rounded-lg shadow-xl w-full max-w-5xl max-h-[90vh] flex flex-col  " onClick={(e) => e.stopPropagation()}>
               {/* Header */}
-              <div className="px-6 py-4 border-b flex items-center justify-between">
+              <div className="px-6 py-4 border-b flex items-center justify-between bg-blue-900 text-yellow-400 rounded-t-lg rounded-b-">
                 <div>
-                  <h2 className="text-xl font-bold text-gray-900">Vincular Mentores ao Projeto</h2>
-                  <p className="text-sm text-gray-600 mt-1">
+                  <h2 className="text-xl font-bold text-yello-400">Vincular Mentores ao Projeto</h2>
+                  <p className="text-sm text-white mt-1">
                     {projetoSelecionado.nome}
                   </p>
-                  <p className="text-xs text-gray-500 mt-1">
+                  <p className="text-xs text-white mt-1">
                     Mentores vinculados: {vinculados.length}
                   </p>
                 </div>
@@ -245,7 +245,7 @@ function VinculacaoMentores() {
               <div className="px-6 py-3 border-b bg-gray-50 flex flex-col md:flex-row md:items-center md:justify-between gap-3">
                 <div className="text-sm">
                   <span className="text-gray-700 font-medium">Status: </span>
-                  <span className={statusProjetoSelecionado === 'ativo' ? 'text-green-700 font-semibold' : 'text-gray-600 font-semibold'}>
+                  <span className={statusProjetoSelecionado === 'ativo' ? 'text-green-800 font-semibold' : 'text-gray-600 font-semibold'}>
                     {statusProjetoSelecionado === 'ativo' ? 'Ativo' : 'Inativo'}
                   </span>
                 </div>

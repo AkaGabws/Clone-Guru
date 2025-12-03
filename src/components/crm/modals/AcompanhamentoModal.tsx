@@ -135,7 +135,7 @@ export function AcompanhamentoModal({ mentoriaId, onClose }: AcompanhamentoModal
         {/* Header do Modal */}
         <div className="flex justify-between items-start p-6 border-b bg-blue-900 text-white">
           <div className="flex-1">
-            <h2 className="text-xl font-bold mb-1">Acompanhamento</h2>
+            <h2 className="text-xl font-bold mb-1 text-yellow-400">Acompanhamento</h2>
             <p className="text-sm text-blue-100">
               {mentoria.empreendedor} • {projeto?.nome || "—"} • {mentor?.nome || "Sem mentor"}
             </p>
@@ -281,7 +281,10 @@ export function AcompanhamentoModal({ mentoriaId, onClose }: AcompanhamentoModal
           <Button variant="outline" onClick={onClose}>
             Cancelar
           </Button>
-          <Button onClick={handleSalvar}>
+          <Button 
+          onClick={handleSalvar}
+          className="bg-blue-900 text-white hover:bg-blue-800"
+          >
             Salvar
           </Button>
         </div>

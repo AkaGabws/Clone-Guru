@@ -49,6 +49,7 @@ export interface Relato {
 export interface Mentoria {
   id: string;
   empreendedor: string;
+  telefoneEmpreendedor?: string; // Telefone do empreendedor para contato
   negocio?: string;
   projetoId: string;
   status: StatusMentoria;

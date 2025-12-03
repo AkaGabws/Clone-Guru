@@ -196,13 +196,9 @@ export function MentorList() {
             onChange={(e) => setMentoriasAtivasFilter(e.target.value)}
           >
             <option value="todos">Todas mentorias ativas</option>
+            <option value="0">Sem mentorias ativas</option>
             <option value="custom">Custom</option>
-            <option value="0">Sem mentorias ativas (0)</option>
-            <option value="1-3">1-3 mentorias ativas</option>
-            <option value="4-6">4-6 mentorias ativas</option>
-            <option value="7-10">7-10 mentorias ativas</option>
-            <option value="11+">Mais de 10 mentorias ativas</option>
-          </select>
+           </select>
 
           {mentoriasAtivasFilter === "custom" && (
             <>

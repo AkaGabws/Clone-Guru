@@ -326,7 +326,7 @@ export function MentoriaLista() {
                         </Td>
                         <Td>
                           <div className="text-sm text-gray-700">
-                            <div>Plataforma: <strong>{numEncontros}</strong></div>
+                            <div>Encontros: <strong>{numEncontros}</strong></div>
                             {mentoria.numEncontrosAcompanhamento !== undefined && (
                               <div className="text-xs text-gray-500">
                                 Acomp.: <strong>{mentoria.numEncontrosAcompanhamento}</strong>
@@ -341,7 +341,8 @@ export function MentoriaLista() {
                                 e.stopPropagation();
                                 setMentoriaSelecionadaId(mentoria.id);
                               }}
-                              className="h-8 px-3 bg-yellow-400 text-blue-900 font-bold hover:bg-yellow-500 text-xs flex items-center gap-1 whitespace-nowrap"
+                              
+                              className="h-8 px-3 text-xs flex items-center gap-1 whitespace-nowrap"
                             >
                               <BookOpen className="w-3 h-3" />
                               Encontros

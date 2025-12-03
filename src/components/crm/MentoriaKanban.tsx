@@ -25,6 +25,32 @@ const colorMap: Record<string, string> = {
   expirada: 'bg-slate-200 text-slate-700',
 };
 
+const STATUS_ACOMPANHAMENTO_MAP: Record<string, string> = {
+  mentoria_ocorrendo: 'Mentoria Ocorrendo',
+  mentoria_nao_iniciada: 'Não Iniciada',
+  mentoria_parada: 'Mentoria Parada',
+  aguardando_retorno_empreendedor: 'Aguardando Empreendedor',
+  aguardando_retorno_mentor: 'Aguardando Mentor',
+  mentor_empreendedor_nao_responde: 'Sem Resposta',
+  mentoria_finalizada: 'Finalizada',
+  mentoria_cancelada: 'Cancelada',
+  empreendedor_desistiu: 'Empreendedor Desistiu',
+  mentoria_atrasada: 'Atrasada',
+};
+
+const colorAcompanhamentoMap: Record<string, string> = {
+  mentoria_ocorrendo: 'bg-emerald-100 text-emerald-700',
+  mentoria_nao_iniciada: 'bg-gray-100 text-gray-700',
+  mentoria_parada: 'bg-amber-100 text-amber-700',
+  aguardando_retorno_empreendedor: 'bg-orange-100 text-orange-700',
+  aguardando_retorno_mentor: 'bg-blue-100 text-blue-700',
+  mentor_empreendedor_nao_responde: 'bg-red-100 text-red-700',
+  mentoria_finalizada: 'bg-lime-100 text-lime-700',
+  mentoria_cancelada: 'bg-rose-100 text-rose-700',
+  empreendedor_desistiu: 'bg-rose-100 text-rose-700',
+  mentoria_atrasada: 'bg-red-100 text-red-700',
+};
+
 export function MentoriaKanban() {
   const { state, dispatch } = useCrm();
   
@@ -529,71 +555,81 @@ function MatchCard({ mentoria, projeto, mentor, onAbrirEncontros, onAbrirAcompan
               </p>
             )}
 
-            {/* Informações adicionais baseadas no status */}
-            {localStatus === "ativa" && (
-              <div className="mt-3 p-3 bg-gray-50 border border-gray-200 rounded-md">
-                {ultimoEncontro ? (
-                  <>
-                    <p className="text-xs font-semibold text-gray-700 mb-2">
-                      Encontro {totalEncontros}:
-                    </p>
-                    <p className="text-xs text-blue-800 line-clamp-2">
-                      {ultimoEncontro.titulo ? `${ultimoEncontro.titulo}: ` : ''}
-                      {ultimoEncontro.texto.length > 100 
-                        ? `${ultimoEncontro.texto.substring(0, 100)}...` 
-                        : ultimoEncontro.texto}
-                    </p>
-                  </>
-                ) : (
-                  <p className="text-xs text-gray-500 italic">
-                    Nenhuma interação registrada
-                  </p>
-                )}
-              </div>
-            )}
-
-            {/* Seção de Acompanhamento */}
+            {/* Container para Encontros e Acompanhamento lado a lado */}
             {!isMentoriaNova && mentoria.status !== "expirada" && abaAtiva !== "expiradas" && (
-              <div className="mt-3 p-3 bg-gray-50 border border-gray-200 rounded-md">
-                <p className="text-xs font-semibold text-gray-700 mb-2">Acompanhamento:</p>
-                <div className="space-y-2 text-xs">
-                  <div className="flex gap-2">
-                    <span className="text-gray-600 font-medium">Encontros (Guru):</span>
-                    <span className="text-gray-800">{totalEncontros}</span>
+              <div className="mt-3 flex gap-3">
+                {/* Card de Informações sobre Encontros */}
+                <div className="flex-2 p-3 bg-gray-50 border border-gray-200 rounded-md">
+                  <p className="text-xs font-semibold text-gray-700 mb-2">Último Encontro:</p>
+                  {ultimoEncontro ? (
+                    <>
+                      <p className="text-xs text-gray-600 mb-1">
+                        Encontro {totalEncontros}
+                      </p>
+                      <p className="text-xs text-blue-800 line-clamp-3">
+                        {ultimoEncontro.titulo ? `${ultimoEncontro.titulo}: ` : ''}
+                        {ultimoEncontro.texto.length > 100 
+                          ? `${ultimoEncontro.texto.substring(0, 100)}...` 
+                          : ultimoEncontro.texto}
+                      </p>
+                    </>
+                  ) : (
+                    <p className="text-xs text-gray-500 italic">
+                      Nenhuma interação registrada
+                    </p>
+                  )}
+                </div>
+
+                {/* Card de Acompanhamento */}
+                <div className="flex-3 p-3 bg-gray-50 border border-gray-200 rounded-md">
+                  <p className="text-xs font-semibold text-gray-700 mb-2">Acompanhamento:</p>
+                  <div className="space-y-1 text-xs">
+                    {mentoria.statusAcompanhamento && (
+                      <div className="flex gap-2 items-center mb-2">
+                        <span className="text-gray-600 font-medium">Status:</span>
+                        <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${colorAcompanhamentoMap[mentoria.statusAcompanhamento] || 'bg-gray-100 text-gray-700'}`}>
+                          {STATUS_ACOMPANHAMENTO_MAP[mentoria.statusAcompanhamento] || mentoria.statusAcompanhamento}
+                        </span>
+                      </div>
+                    )}
+                    <div className="flex gap-2">
+                      <span className="text-gray-600 font-medium">Encontros da Mentoria:</span>
+                      <span className="text-gray-800">{totalEncontros}</span>
+                    </div>
+                    {mentoria.numEncontrosAcompanhamento !== undefined && (
+                      <div className="flex gap-2">
+                        <span className="text-gray-600 font-medium">Acompanhamentos:</span>
+                        <span className="text-gray-800">{mentoria.numEncontrosAcompanhamento}</span>
+                      </div>
+                    )}
+                    {mentoria.proximoEncontroDataISO && (
+                      <div className="flex gap-2">
+                        <span className="text-gray-600 font-medium">Próximo:</span>
+                        <span className="text-gray-800">
+                          {new Date(mentoria.proximoEncontroDataISO).toLocaleDateString('pt-BR')}
+                          {mentoria.proximoEncontroHorario && ` às ${mentoria.proximoEncontroHorario}`}
+                        </span>
+                      </div>
+                    )}
+                    {mentoria.observacaoEmpreendedor && (
+                      <div>
+                        <span className="text-gray-600 font-medium block">Obs. Empreendedor:</span>
+                        <p className="text-gray-800 line-clamp-2">{mentoria.observacaoEmpreendedor}</p>
+                      </div>
+                    )}
+                    {mentoria.observacaoMentor && (
+                      <div>
+                        <span className="text-gray-600 font-medium block">Obs. Mentor:</span>
+                        <p className="text-gray-800 line-clamp-2">{mentoria.observacaoMentor}</p>
+                      </div>
+                    )}
+                    {mentoria.motivoCancelamento && (
+                      <div>
+                        <span className="text-gray-600 font-medium block">Motivo Finalização:</span>
+                        <p className="text-gray-800">{mentoria.motivoCancelamento}</p>
+                      </div>
+                    )}
                   </div>
-                  {mentoria.numEncontrosAcompanhamento !== undefined && (
-                    <div className="flex gap-2">
-                      <span className="text-gray-600 font-medium">Encontros (Acompanhamento):</span>
-                      <span className="text-gray-800">{mentoria.numEncontrosAcompanhamento}</span>
-                    </div>
-                  )}
-                  {mentoria.proximoEncontroDataISO && (
-                    <div className="flex gap-2">
-                      <span className="text-gray-600 font-medium">Próximo encontro:</span>
-                      <span className="text-gray-800">
-                        {new Date(mentoria.proximoEncontroDataISO).toLocaleDateString('pt-BR')}
-                        {mentoria.proximoEncontroHorario && ` às ${mentoria.proximoEncontroHorario}`}
-                      </span>
-                    </div>
-                  )}
-                  {mentoria.observacaoEmpreendedor && (
-                    <div>
-                      <span className="text-gray-600 font-medium block mb-1">Obs. Empreendedor:</span>
-                      <p className="text-gray-800 line-clamp-2">{mentoria.observacaoEmpreendedor}</p>
-                    </div>
-                  )}
-                  {mentoria.observacaoMentor && (
-                    <div>
-                      <span className="text-gray-600 font-medium block mb-1">Obs. Mentor:</span>
-                      <p className="text-gray-800 line-clamp-2">{mentoria.observacaoMentor}</p>
-                    </div>
-                  )}
-                  {mentoria.motivoCancelamento && (
-                    <div>
-                      <span className="text-gray-600 font-medium block mb-1">Motivo Finalização:</span>
-                      <p className="text-gray-800">{mentoria.motivoCancelamento}</p>
-                    </div>
-                  )}
                 </div>
               </div>
             )}

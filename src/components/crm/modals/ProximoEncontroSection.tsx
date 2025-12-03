@@ -35,7 +35,7 @@ export function ProximoEncontroSection({ mentoria }: { mentoria: Mentoria }) {
         return (
             <div className="bg-blue-50 border border-blue-100 rounded-md p-4">
                 <div className="flex items-center justify-between mb-3">
-                    <h3 className="text-sm font-bold text-blue-900">📅 Próximo Encontro</h3>
+                    <h3 className="text-sm font-bold text-blue-900">Próximo Encontro</h3>
                     <div className="flex gap-1">
                         <button onClick={handleCancel} className="p-1 text-gray-400 hover:text-gray-600" title="Cancelar">
                             <X className="w-4 h-4" />
@@ -77,7 +77,7 @@ export function ProximoEncontroSection({ mentoria }: { mentoria: Mentoria }) {
     return (
         <div className="bg-blue-50 border border-blue-100 rounded-md p-4">
             <div className="flex items-center justify-between mb-2">
-                <h3 className="text-sm font-bold text-blue-900">📅 Próximo Encontro</h3>
+                <h3 className="text-sm font-bold text-blue-900"> Próximo Encontro</h3>
                 <button onClick={() => setIsEditing(true)} className="p-1 text-gray-400 hover:text-blue-600" title="Editar">
                     <Edit2 className="w-4 h-4" />
                 </button>
