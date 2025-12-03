@@ -295,7 +295,7 @@ export function MentorList() {
                               e.stopPropagation();
                               setEditId(grupo.mentor.id);
                             }}
-                            className="h-8 px-3 bg-yellow-400 text-blue-900 font-bold hover:bg-yellow-500 text-xs flex items-center gap-1 whitespace-nowrap"
+                            className="h-8 px-3 text-xs flex items-center gap-1 whitespace-nowrap bg-blue-900 text-white hover:bg-blue-800"
                           >
                             <Edit className="w-3 h-3" />
                             Editar
@@ -344,7 +344,7 @@ export function MentorList() {
                               e.stopPropagation();
                               setMentoriaSelecionadaId(mentoria.id);
                             }}
-                            className="h-8 px-3 bg-yellow-400 text-blue-900 font-bold hover:bg-yellow-500 text-xs flex items-center gap-1 whitespace-nowrap"
+                            className="h-8 px-3 text-xs flex items-center gap-1 whitespace-nowrap"
                           >
                             <BookOpen className="w-3 h-3" />
                             Encontros
@@ -421,10 +421,8 @@ function MentorEditor({ mentorId, onClose }: { mentorId: string; onClose: () => 
         </div>
         
         <div className="grid grid-cols-1 gap-4">
-          <Input label="Nome" value={form.nome} onChange={(v) => setForm((f) => ({ ...f, nome: v }))} />
           <Input label="Email" value={form.email} onChange={(v) => setForm((f) => ({ ...f, email: v }))} />
           <Input label="Telefone" value={form.telefone} onChange={(v) => setForm((f) => ({ ...f, telefone: v }))} />
-          <Input label="Área" value={form.area} onChange={(v) => setForm((f) => ({ ...f, area: v }))} />
           <div className="flex items-center gap-2">
             <input 
               id="ativo" 
