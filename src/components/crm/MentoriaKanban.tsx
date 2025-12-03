@@ -80,6 +80,9 @@ export function MentoriaKanban() {
   const [customMinEncontros, setCustomMinEncontros] = React.useState<string>("");
   const [customMaxEncontros, setCustomMaxEncontros] = React.useState<string>("");
 
+  // Filtro de status de acompanhamento
+  const [statusAcompanhamentoFilter, setStatusAcompanhamentoFilter] = React.useState<string>("todos");
+
   // Filtra mentorias
   const mentoriasFiltradas = React.useMemo(() => {
     const { status, mentorId, projetoId } = state.filtro;
@@ -223,11 +226,22 @@ export function MentoriaKanban() {
           }
         }
 
-        return byStatus && byMentor && byProjeto && byBusca && byDate && byEncontros;
+        // Filtro por status de acompanhamento
+        let byStatusAcompanhamento = true;
+        if (statusAcompanhamentoFilter !== "todos") {
+          if (statusAcompanhamentoFilter === "sem_status") {
+            // Filtrar mentorias sem status de acompanhamento definido
+            byStatusAcompanhamento = !m.statusAcompanhamento;
+          } else {
+            byStatusAcompanhamento = m.statusAcompanhamento === statusAcompanhamentoFilter;
+          }
+        }
+
+        return byStatus && byMentor && byProjeto && byBusca && byDate && byEncontros && byStatusAcompanhamento;
       })
       .sort((a, b) => (a.ultimaAtualizacaoISO < b.ultimaAtualizacaoISO ? 1 : -1));
   // dependências: inclui filtros de data e encontros
-  }, [state.mentorias, state.filtro, state.mentores, state.projetos, state.relatos, buscaLocal, abaAtiva, dateFilter, customFrom, customTo, projectFilter, encontrosFilter, customMinEncontros, customMaxEncontros]);
+  }, [state.mentorias, state.filtro, state.mentores, state.projetos, state.relatos, buscaLocal, abaAtiva, dateFilter, customFrom, customTo, projectFilter, encontrosFilter, customMinEncontros, customMaxEncontros, statusAcompanhamentoFilter]);
 
   // Contadores para as abas
   const contadores = React.useMemo(() => {
@@ -365,6 +379,23 @@ export function MentoriaKanban() {
             </>
           )}
         </div>
+        )}
+
+        {/* Filtro por Status de Acompanhamento */}
+        {abaAtiva !== "pendentes" && (
+          <select
+            className="border rounded-md h-9 px-2 text-sm bg-white"
+            value={statusAcompanhamentoFilter}
+            onChange={(e) => setStatusAcompanhamentoFilter(e.target.value)}
+          >
+            <option value="todos">Todos status acomp.</option>
+            <option value="sem_status">Sem status definido</option>
+            {Object.entries(STATUS_ACOMPANHAMENTO_MAP).map(([key, label]) => (
+              <option key={key} value={key}>
+                {label}
+              </option>
+            ))}
+          </select>
         )}
       </div>
       {/* Lista de mentorias */}
