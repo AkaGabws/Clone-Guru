@@ -70,18 +70,17 @@ export function Header() {
                 <span className="font-heading text-3xl font-bold text-white">Guru de Negócios</span>
               </Link>
               
-              <div className="hidden md:flex items-center gap-3">
-                <>
-                  <Button className="rounded-lg bg-neutral-900 text-white hover:bg-neutral-800 px-4">
-                    Cadastre-se
-                  </Button>
-                  <Button 
-                    onClick={() => setShowLoginModal(true)}
-                    className="rounded-lg text-neutral-900 hover:bg-slate-100 shadow px-4"
-                  >
-                    Entrar
-                  </Button>
-                </>
+              <div className="hidden md:flex flex-col gap-2">
+                <Button className="rounded-lg bg-gray-900 text-white hover:bg-gray-800 px-6 py-2 font-medium">
+                  Cadastre-se
+                </Button>
+                <Button 
+                  onClick={() => setShowLoginModal(true)}
+                  variant="outline"
+                  className="rounded-lg bg-white !text-black hover:bg-gray-100 px-6 py-2 font-medium border border-gray-300 shadow-sm"
+                >
+                  Entrar
+                </Button>
               </div>
               
               <Button 
@@ -120,12 +119,13 @@ export function Header() {
               <Link to="/mentorias" className="text-white/90 hover:text-white transition-colors py-2">Mentorias</Link>
               <div className="border-t border-blue-700 pt-3 mt-2">
                 <div className="flex flex-col gap-2">
-                  <Button className="rounded-lg bg-neutral-900 text-white hover:bg-neutral-800 px-4 w-full">
+                  <Button className="rounded-lg bg-gray-900 text-white hover:bg-gray-800 px-6 py-2 font-medium w-full">
                     Cadastre-se
                   </Button>
                   <Button 
                     onClick={() => setShowLoginModal(true)}
-                    className="rounded-lg text-neutral-900 hover:bg-slate-100 shadow px-4 w-full"
+                    variant="outline"
+                    className="rounded-lg bg-white !text-black hover:bg-gray-100 px-6 py-2 font-medium border border-gray-300 shadow-sm w-full"
                   >
                     Entrar
                   </Button>
