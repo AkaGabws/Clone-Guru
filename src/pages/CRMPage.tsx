@@ -4,17 +4,59 @@ import { Footer } from "../components/sections/Footer";
 import { Button } from "../components/ui/button";
 import { Card } from "../components/ui/card";
 import { useCrm } from "../store/CrmContext";
+import { useAuth } from "../store/AuthContext";
 import { MentoriaKanban } from "../components/crm/MentoriaKanban";
 import { MentoriaLista } from "../components/crm/MentoriaLista";
 import { MentorList } from "../components/crm/MentorList";
 import { RelatosFeed } from "../components/crm/RelatosFeed";
-import { Filter, Users, KanbanSquare, List, NotebookPen, ProjectorIcon, Projector } from "lucide-react";
+import { Users, KanbanSquare, List, Projector, ShieldAlert, LogIn } from "lucide-react";
+import { Link } from "react-router-dom";
 
 type Aba = "kanban" | "lista de Mentorados" | "mentores" | "relatos";
 
 export default function CRMPage() {
   const { state, dispatch } = useCrm();
+  const { isAdmin, isLoggedIn, login } = useAuth();
   const [aba, setAba] = React.useState<Aba>("kanban");
+
+  // Se não estiver logado como admin, mostra tela de acesso restrito
+  if (!isAdmin) {
+    return (
+      <div className="min-h-screen bg-white">
+        <Header />
+        <main className="container mx-auto px-6 py-16 max-w-2xl text-center">
+          <div className="bg-red-50 border border-red-200 rounded-lg p-8">
+            <ShieldAlert className="w-16 h-16 text-red-500 mx-auto mb-4" />
+            <h1 className="text-2xl font-bold text-red-800 mb-2">Acesso Restrito</h1>
+            <p className="text-red-700 mb-6">
+              Esta área é exclusiva para administradores. 
+              {!isLoggedIn 
+                ? " Por favor, faça login para continuar." 
+                : " Você não tem permissão para acessar esta página."}
+            </p>
+            {!isLoggedIn && (
+              <div className="flex flex-col gap-3 items-center">
+                <Button 
+                  onClick={() => login()}
+                  className="bg-blue-900 text-white hover:bg-blue-800 flex items-center gap-2"
+                >
+                  <LogIn className="w-4 h-4" />
+                  Entrar como Administrador
+                </Button>
+                <p className="text-xs text-gray-500">
+                  (Modo protótipo - clique para acessar como admin)
+                </p>
+              </div>
+            )}
+            <Link to="/" className="text-blue-600 hover:underline text-sm mt-4 inline-block">
+              ← Voltar para a página inicial
+            </Link>
+          </div>
+        </main>
+        <Footer />
+      </div>
+    );
+  }
 
   const totals = React.useMemo(() => {
     const byStatus = state.mentorias.reduce<Record<string, number>>((acc, m) => {

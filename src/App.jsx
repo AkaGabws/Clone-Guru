@@ -7,9 +7,11 @@ import MentoriasPage from "./pages/MentoriasPage";
 import MentoriaAcompanhamento from "./pages/MentoriaAcompanhamento";
 import { Header } from "./components/sections/Header";
 import CRMPage from "./pages/CRMPage";
+import { AuthProvider } from "./store/AuthContext";
 
 export default function App() {
   return (
+    <AuthProvider>
     <BrowserRouter>
       <Routes>
         <Route path="/crm" element={<CRMPage />} />
@@ -31,5 +33,6 @@ export default function App() {
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </BrowserRouter>
+    </AuthProvider>
   );
 }
