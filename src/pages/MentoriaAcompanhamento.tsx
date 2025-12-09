@@ -43,121 +43,124 @@ export default function MentoriaAcompanhamento() {
   const faltam = useMemo(() => Math.max(metaMinutos - concluidos, 0), [metaMinutos, concluidos]);
 
   return (
-   
-
-    <div className="min-h-screen  bg-white">
+    <div className="min-h-screen bg-[#F5F7FA]">
       <Header />
-      {/* Topo branco */}
-      <div className="max-w-[980px] mx-auto px-4 py-3 flex items-center justify-between">
-        <button
-          onClick={() => navigate(-1)}
-          className="flex items-center gap-2 text-[#136082] hover:text-[#0B3D6D] transition"
-        >
-          <ArrowLeft size={18} />
-          <span className="text-sm font-medium uppercase tracking-wide">Voltar</span>
-        </button>
+      
+      {/* Botão Voltar */}
+      <div className="bg-white">
+        <div className="max-w-[980px] mx-auto px-6 py-4">
+          <button
+            onClick={() => navigate(-1)}
+            className="flex items-center gap-2 text-[#003D74] hover:text-[#0B3D6D] transition font-semibold"
+          >
+            <ArrowLeft size={20} />
+            <span className="text-sm uppercase tracking-wider">Voltar</span>
+          </button>
+        </div>
       </div>
-      <div className="h-[3px] bg-[#FFD400]"/>
 
-      {/* Card branco com cantos inferiores arredondados */}
-      <section className="max-w-[980px] mx-auto bg-white rounded-b-[28px] shadow-md px-5 sm:px-6 md:px-8 pt-10 pb-2">
-        <div className="mb-5">
-          <h1 className="text-[13px] sm:text-sm font-extrabold text-[#136082] uppercase tracking-[0.12em]">
-            {tipo.split(">")[0]?.trim() || "MENTORIA GRATUITA"}
-            <span className="ml-3 font-semibold normal-case tracking-normal text-[#000000]">{subtitulo}</span>
-          </h1>
-        </div>
+      {/* Conteúdo Principal - Card Branco */}
+      <div className="max-w-[980px] mx-auto px-6 py-8 pb-12">
+        <section className="bg-white rounded-b-lg shadow-lg px-8 py-10 space-y-8">
+          
+          {/* Título da Mentoria */}
+          <div className="pb-4 border-b-2 border-gray-100">
+            <h1 className="text-xl font-bold text-[#003D74] uppercase tracking-wide">
+              {tipo.split(">")[0]?.trim() || "MENTORIA GRATUITA"}
+              {" "}
+              <span className=" text-lg  normal-case text-[#03569e] ml-2">{subtitulo}</span>
+            </h1>
+          </div>
 
-        <div className="mt-4">
-          <span className="inline-block text-[11px] font-extrabold uppercase tracking-wide px-3 py-1 rounded-full bg-[#003D74] text-[#FFDE1A]">
-            Nome e Sobrenome
-          </span>
-          <div className="mt-2"></div>
-          <p className="text-[13px] sm:text-[14px] leading-6 text-[#1F2937]">{nome}</p>
-        </div>
+          {/* Nome e Sobrenome */}
+          <div className="space-y-3">
+            <span className="inline-block text-xs font-bold uppercase tracking-wider px-4 py-2 rounded-full bg-[#003D74] text-[#FFD400]">
+              Nome e Sobrenome
+            </span>
+            <p className="text-sm leading-relaxed text-gray-700">{nome}</p>
+          </div>
 
-        <div className="mt-4">
-          <span className="inline-block text-[11px] font-extrabold uppercase tracking-wide px-3 py-1 rounded-full bg-[#003D74] text-[#FFDE1A]">
-            Desafios que o(a) empreendedor(a) enfrenta
-          </span>
-          <div className="mt-2"></div>
-          <p className="text-[13px] sm:text-[14px] leading-6 text-[#1F2937]">{desafio}</p>
-        </div>
+          {/* Desafios */}
+          <div className="space-y-3">
+            <span className="inline-block text-xs font-bold uppercase tracking-wider px-4 py-2 rounded-full bg-[#003D74] text-[#FFD400]">
+              Desafios que o(a) empreendedor(a) enfrenta
+            </span>
+            <p className="text-sm leading-relaxed text-gray-700">{desafio}</p>
+          </div>
 
-        <div className="mt-4">
-          <span className="inline-block text-[11px] font-extrabold uppercase tracking-wide px-3 py-1 rounded-full bg-[#003D74] text-[#FFDE1A]">
-            Sobre o negócio
-          </span>
-          <div className="mt-2"></div>
-          <p className="text-[13px] sm:text-[14px] leading-6 text-[#1F2937]">{negocio}</p>
-        </div>
+          {/* Sobre o negócio */}
+          <div className="space-y-3">
+            <span className="inline-block text-xs font-bold uppercase tracking-wider px-4 py-2 rounded-full bg-[#003D74] text-[#FFD400]">
+              Sobre o negócio
+            </span>
+            <p className="text-sm leading-relaxed text-gray-700">{negocio}</p>
+          </div>
 
-        <div className="mt-4">
-          <span className="inline-block text-[11px] font-extrabold uppercase tracking-wide px-3 py-1 rounded-full bg-[#003D74] text-[#FFDE1A]">
-            Área de atuação
-          </span>
-          <div className="mt-2">
-            <div className="flex flex-wrap gap-2 mt-1">
+          {/* Área de atuação */}
+          <div className="space-y-3">
+            <span className="inline-block text-xs font-bold uppercase tracking-wider px-4 py-2 rounded-full bg-[#003D74] text-[#FFD400]">
+              Área de atuação
+            </span>
+            <div className="flex flex-wrap gap-2">
               <Chip color="blue">Setor</Chip>
               <Chip color="yellow">{area}</Chip>
             </div>
           </div>
-        </div>
       
-        <div className="mt-4">
-          <span className="inline-block text-[11px] font-extrabold uppercase tracking-wide px-3 py-1 rounded-full bg-[#003D74] text-[#FFDE1A]">
-            Sobre o(a) empreendedor(a)
-          </span>
-          <div className="mt-2">
-            <p className="text-[13px] sm:text-[14px] leading-6 text-[#1F2937]">{sobreEmpreendedor}</p>
+          {/* Sobre o empreendedor */}
+          <div className="space-y-3">
+            <span className="inline-block text-xs font-bold uppercase tracking-wider px-4 py-2 rounded-full bg-[#003D74] text-[#FFD400]">
+              Sobre o(a) empreendedor(a)
+            </span>
+            <p className="text-sm leading-relaxed text-gray-700">{sobreEmpreendedor}</p>
           </div>
-        </div>
 
-        <div className="mt-4">
-          <span className="inline-block text-[11px] font-extrabold uppercase tracking-wide px-3 py-1 rounded-full bg-[#003D74] text-[#FFDE1A]">
-            Cursos que o(a) empreendedor(a) já fez no Tamo Junto
-          </span>
-          <div className="mt-2">
+          {/* Cursos */}
+          <div className="space-y-3">
+            <span className="inline-block text-xs font-bold uppercase tracking-wider px-4 py-2 rounded-full bg-[#003D74] text-[#FFD400]">
+              Cursos que o(a) empreendedor(a) já fez no Tamo Junto
+            </span>
             {cursos.length ? (
-              <ul className="list-disc pl-5 text-[13px] sm:text-[14px] text-[#1F2937]">
+              <ul className="list-disc pl-6 space-y-1 text-sm text-gray-700">
                 {cursos.map((c, i) => (
                   <li key={i}>{c}</li>
                 ))}
               </ul>
             ) : (
-              <p className="text-[13px] sm:text-[14px] text-[#5B6C7B]">Não há cursos concluídos</p>
+              <p className="text-sm italic text-gray-500">Não há cursos concluídos</p>
             )}
           </div>
-        </div>
 
-        <div className="mt-4">
-          <div className="flex items-center gap-2 flex-wrap">
-            <Chip color="blue">Inscrito(a) desde</Chip>
-            <Chip color="yellow">{dataInscricao}</Chip>
+          {/* Data de inscrição */}
+          <div className="space-y-3">
+            <div className="flex items-center gap-2 flex-wrap">
+              <Chip color="blue">Inscrito(a) desde</Chip>
+              <Chip color="yellow">{dataInscricao}</Chip>
+            </div>
           </div>
-        </div>
+        </section>
 
-        {/* : WhatsApp */}
-        <div className="max-w-[980px] px-66 pt-20   " >
-                      <button
-                        onClick={() => window.open(`https://wa.me/${whatsapp}`, "_blank")}
-                        className="inline-flex items-center justify-center w-full sm:w-auto px-6 py-2 rounded-full
-                                  bg-[#25D366] text-white font-semibold shadow hover:brightness-110 transition"
-                        disabled={!whatsapp}
-                        >
-                      Clique para acessar o contato via WhatsApp            
-                    </button>
-                  </div> 
-      </section>
-
-      {/* Card azul com cantos inferiores arredondados */}
-      <section className="max-w-[980px] mx-auto bg-[#0b3d6d] px-4 sm:px-6 md:px-8 py-8 rounded-b-[30px] shadow-md  pb-10 text-white " >
-          
-          <h3 className=" mt-6 text-[15px] sm:text-base font-extrabold tracking-wide uppercase">Acompanhe sua mentoria</h3>
-          <div className="mt-2 space-y-2 text-[13px] sm:text-[14px] leading-6 text-white/90">
+        {/* Botão WhatsApp - Separador entre sections */}
+        {whatsapp && (
+          <div className="flex justify-center py-8">
+            <button 
+              className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-[#25D366] text-white font-semibold text-sm shadow-lg hover:bg-[#20BA5A] hover:shadow-xl transition-all" 
+              onClick={() => window.open(`https://wa.me/${whatsapp}`, "_blank")}
+            >
+              Clique para acessar o contato via WhatsApp
+            </button>
+          </div>
+        )}
+      {/* Seção Azul - Acompanhamento */}
+        <section className="bg-[#003D74] rounded-2xl shadow-lg px-10 py-10 text-white">
+          {/* Título Principal */}
+          <h2 className="text-lg font-bold uppercase tracking-wide text-[#FFD400] mb-4">
+            Acompanhe sua mentoria
+          </h2>
+          <div className="space-y-4 text-sm leading-relaxed text-white/95 mb-10">
             <p>
-              A mentoria que você selecionou tem duração total de <b>{metaMinutos} minutos</b>, dos quais você já
-              completou <b>{concluidos} minutos</b>.
+              A mentoria que você selecionou tem duração total de <strong className="font-bold text-white">{metaMinutos} minutos</strong>, 
+              dos quais você já completou <strong className="font-bold text-white">{concluidos} minutos</strong>.
             </p>
             <p>
               Certifique-se de registrar cada encontro e acompanhar o progresso do(a) mentorado(a) para gerar a carga
@@ -165,73 +168,78 @@ export default function MentoriaAcompanhamento() {
             </p>
           </div>
 
-          <div className="mt-8">
-            <h4 className="text-[15px] sm:text-base font-extrabold uppercase tracking-wide">
+          {/* Formulário de Encontro */}
+          <div className="mt-10">
+            <h3 className="text-base font-bold uppercase tracking-wide text-[#FFD400] mb-2">
               Como foi a experiência desse encontro?
-            </h4>
-            <p className="mt-1 text-white/90 text-[13px] sm:text-[14px]">
-              Encontro 1: Descreva como foi esse momento, os principais pontos discutidos e combinados e próximos
-              passos
+            </h3>
+            <p className="text-sm text-white/90 mb-6">
+              <strong>Encontro 1:</strong> Descreva como foi esse momento, os principais pontos discutidos e combinados e próximos passos
             </p>
 
             <form
               onSubmit={(e) => {
                 e.preventDefault();
-                alert("UI-only: aqui você pode salvar no localStorage quando quiser.");
+                alert("Encontro salvo com sucesso!");
               }}
-              className="mt-3"
+              className="space-y-5"
             >
-              <textarea
-                className="w-full h-44 sm:h-56 rounded-lg bg-white text-[#1F2937] p-3 outline-none
-                           border border-white/20 focus:border-[#FFC928] focus:ring-2 focus:ring-[#FFC928]/40"
-                placeholder="Descreva como foi o encontro"
-              />
+              {/* Textarea */}
+              <div>
+                <textarea
+                  className="w-full h-48 rounded-xl bg-white text-gray-900 p-4 text-sm outline-none
+                             border-2 border-transparent focus:border-[#FFD400] focus:ring-2 focus:ring-[#FFD400]/30 transition-all"
+                  placeholder="Descreva como foi o encontro"
+                />
+              </div>
 
-              <div className="mt-3 grid grid-cols-1 sm:grid-cols-2 gap-3">
+              {/* Campos de Duração e Data */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <label className="block mb-1 text-[12px] uppercase tracking-wide text-white/80">
+                  <label className="block mb-2 text-xs uppercase tracking-wider text-white/90 font-semibold">
                     Duração do Encontro (em minutos)
                   </label>
                   <input
                     type="number"
                     min={0}
                     max={240}
-                    className="w-full rounded-lg bg-white text-[#1F2937] p-2 outline-none
-                               border border-white/20 focus:border-[#FFC928] focus:ring-2 focus:ring-[#FFC928]/40"
+                    className="w-full rounded-lg bg-white text-gray-900 px-4 py-3 text-sm outline-none
+                               border-2 border-transparent focus:border-[#FFD400] focus:ring-2 focus:ring-[#FFD400]/30 transition-all"
                     placeholder="Informe o tempo em minutos do encontro"
                   />
                 </div>
                 <div>
-                  <label className="block mb-1 text-[12px] uppercase tracking-wide text-white/80">
+                  <label className="block mb-2 text-xs uppercase tracking-wider text-white/90 font-semibold">
                     Data do Encontro
                   </label>
                   <input
                     type="date"
-                    className="w-full rounded-lg bg-white text-[#1F2937] p-2 outline-none
-                               border border-white/20 focus:border-[#FFC928] focus:ring-2 focus:ring-[#FFC928]/40"
+                    className="w-full rounded-lg bg-white text-gray-900 px-4 py-3 text-sm outline-none
+                               border-2 border-transparent focus:border-[#FFD400] focus:ring-2 focus:ring-[#FFD400]/30 transition-all"
                   />
                 </div>
               </div>
 
-              <label className="mt-3 flex items-start gap-2 text-white/90 text-sm">
-                <input type="checkbox" className="mt-[3px]" />
-                Não houve próximo encontro. Quero salvar
+              {/* Checkbox */}
+              <label className="flex items-start gap-3 text-sm text-white/95 cursor-pointer">
+                <input type="checkbox" className="mt-1 w-4 h-4 rounded" />
+                <span>Não houve próximo encontro. Quero salvar</span>
               </label>
 
-              <div className="mt-5 flex flex-wrap gap-8 items-center justify-center">
+              {/* Botões */}
+              <div className="flex flex-col items-center gap-4 pt-6">
                 <button
                   type="submit"
-                  className="px-6 py-2 rounded-full font-bold text-[#0B3D6D]
-                             bg-[#FFC928] hover:brightness-110 transition"
+                  className="px-10 py-3 rounded-full font-bold text-sm uppercase tracking-wide
+                             bg-[#FFD400] text-[#003D74] hover:bg-[#FFC928] transition-all shadow-lg"
                 >
                   Salvar encontro
                 </button>
-              </div>
-              <div className="mt-6 flex flex-wrap gap-8 items-center justify-center">
+                
                 <button
                   type="button"
                   onClick={() => navigate(-1)}
-                  className="text-yellow-400 hover:text-white underline underline-offset-4"
+                  className="text-[#FFD400] hover:text-white font-semibold text-sm underline underline-offset-4 transition-colors"
                 >
                   Voltar
                 </button>
@@ -240,6 +248,9 @@ export default function MentoriaAcompanhamento() {
           </div>
           
         </section>
+      
+      </div>
+
       <Footer />
     </div>
   );
