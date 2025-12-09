@@ -1,6 +1,6 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, OctagonX } from "lucide-react";
 
 
 type MentoriaDetalheProps = {
@@ -40,33 +40,43 @@ export function MentoriaDetalhe({ solicitacao, onClose }: MentoriaDetalheProps) 
           sobreEmpreendedor: solicitacao.sobreEmpreendedor,
           cursos: solicitacao.cursos,
           dataInscricao: solicitacao.data,
+          whatsapp: solicitacao.whatsapp,
         },
       },
     });
   };
 
   return (
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+    <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4 overflow-y-auto">
       
-      <div className="bg-white rounded-xl shadow-xl w-full max-w-3xl overflow-hidden">
+      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-2xl my-8 max-h-[90vh] flex flex-col overflow-hidden">
         
-        <div className="px-6 pt-4 pb-2">
-          <div className="flex items-center">
-            <button
-              onClick={onClose}
-              className="flex items-center gap-2 text-[#136082] hover:text-[#0B3D6D] transition"
-            >
-              <ArrowLeft size={18} />
-              <span className="text-sm font-bold uppercase tracking-wide">Voltar</span>
-            </button>
-            
-            <div className="ml-3 h-6 border-l-2 border-dashed border-[#136082]/70" />
+        {/* Header fixo */}
+        <div className="sticky top-0 bg-white z-10">
+          <div className="px-6 pt-4 pb-2">
+            <div className="flex items-center justify-between">
+              <button
+                onClick={onClose}
+                className="flex items-center gap-2 text-[#003D74] hover:text-[#0B3D6D] transition font-semibold"
+              >
+                <ArrowLeft size={20} />
+                <span className="text-sm uppercase tracking-wide">Voltar</span>
+              </button>
+              <button
+                onClick={onClose}
+                className="text-gray-400 hover:text-gray-600 text-2xl leading-none"
+                aria-label="Fechar"
+              >
+                ×
+              </button>
+            </div>
           </div>
+          <div className="h-[3px] w-full bg-[#FFD400]" />
         </div>
-        <div className="h-[3px] w-full bg-[#FFD400]" />
 
         
-        <div className="px-6 py-6">
+        {/* Conteúdo com scroll */}
+        <div className="px-6 py-6 overflow-y-auto flex-1">
           
           <div className="mb-4">
             <div className="text-[13px] sm:text-sm font-extrabold text-[#003D74] uppercase tracking-[0.12em]">
@@ -174,30 +184,27 @@ export function MentoriaDetalhe({ solicitacao, onClose }: MentoriaDetalheProps) 
             </div>
           </div>
 
-          {/* CTA */}
-          <div className="mt-8">
-            <div className="flex justify-center">
-              <button
-                onClick={handleAceitar}
-                className="px-10 py-2 rounded-full bg-[#25D366] text-white font-bold tracking-wide shadow hover:brightness-110 transition"
-              >
-                ACEITAR
-              </button>
-            </div>
-            <div className="mt-3 text-center">
-              <button
-                type="button"
-                onClick={onClose}
-                className="text-[#003D74] hover:underline underline-offset-4"
-              >
-                Prefiro não aceitar essa mentoria
-              </button>
-            </div>
+        </div>
+        
+        {/* Footer fixo com botões */}
+        <div className="sticky bottom-0 bg-white border-t-2 border-gray-100 px-6 py-4">
+          <div className="flex flex-col items-center gap-3">
+            <button
+              onClick={handleAceitar}
+              className="px-10 py-2.5 rounded-full bg-[#25D366] text-white font-bold text-sm shadow-md hover:bg-[#20BA5A] transition-all"
+            >
+              ACEITAR
+            </button>
+            <button
+              type="button"
+              onClick={onClose}
+              className="text-[#003D74] hover:underline underline-offset-4 text-sm font-medium"
+            >
+             Prefiro não aceitar essa mentoria
+            </button>
           </div>
         </div>
-        {/* /CONTEÚDO */}
       </div>
-      {/* /CARD */}
     </div>
   );
 }
