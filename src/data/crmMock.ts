@@ -11,21 +11,86 @@ export const crmMock: CRMState = {
   ],
   mentores: (() => {
     const base = [
-      { id: "m1", nome: "Ana Marques", email: "ana.marques@ex.com", area: "Marketing", ativo: true, projetosIds: ["p3"] },
-      { id: "m2", nome: "Carlos Dias", email: "carlos.dias@ex.com", area: "Finanças", ativo: true, projetosIds: ["p1", "p2"] },
-      { id: "m3", nome: "Júlia Azevedo", email: "julia.azevedo@ex.com", area: "Vendas", ativo: false, projetosIds: ["p2"] },
-      { id: "m4", nome: "Bruno Silva", email: "bruno.silva@ex.com", area: "Tecnologia", ativo: true, projetosIds: ["p4", "p5"] },
-      { id: "m5", nome: "Fernanda Lima", email: "fernanda.lima@ex.com", area: "Gestão", ativo: false, projetosIds: ["p6"] },
-      { id: "m6", nome: "Rafael Torres", email: "rafael.torres@ex.com", area: "Marketing", ativo: true, projetosIds: ["p2", "p5"] },
-      { id: "m7", nome: "Patrícia Souza", email: "patricia.souza@ex.com", area: "Vendas", ativo: true, projetosIds: ["p1", "p4"] },
+      { 
+        id: "m1", nome: "Ana Marques", email: "ana.marques@ex.com", 
+        area: "Marketing Digital", 
+        competencias: ["Marketing Digital", "Redes Sociais", "E-commerce"],
+        ativo: true, projetosIds: ["p3"],
+        genero: "Mulher", raca: "Branca", escolaridade: "Superior Completo", nacionalidade: "Brasileira"
+      },
+      { 
+        id: "m2", nome: "Carlos Dias", email: "carlos.dias@ex.com", 
+        area: "Finanças e Contabilidade", 
+        competencias: ["Finanças e Contabilidade", "Gestão Financeira", "Planejamento"],
+        ativo: true, projetosIds: ["p1", "p2"],
+        genero: "Homem", raca: "Pardo", escolaridade: "Pós-graduação", nacionalidade: "Brasileira"
+      },
+      { 
+        id: "m3", nome: "Júlia Azevedo", email: "julia.azevedo@ex.com", 
+        area: "Vendas e Negociação", 
+        competencias: ["Vendas e Negociação", "Atendimento ao Cliente"],
+        ativo: false, projetosIds: ["p2"],
+        genero: "Mulher", raca: "Preta", escolaridade: "Superior Completo", nacionalidade: "Brasileira"
+      },
+      { 
+        id: "m4", nome: "Bruno Silva", email: "bruno.silva@ex.com", 
+        area: "Tecnologia e Inovação", 
+        competencias: ["Tecnologia e Inovação", "Desenvolvimento de Software", "Transformação Digital"],
+        ativo: true, projetosIds: ["p4", "p5"],
+        genero: "Homem", raca: "Branco", escolaridade: "Superior Completo", nacionalidade: "Brasileira"
+      },
+      { 
+        id: "m5", nome: "Fernanda Lima", email: "fernanda.lima@ex.com", 
+        area: "Gestão de Pessoas", 
+        competencias: ["Gestão de Pessoas", "Recursos Humanos", "Liderança"],
+        ativo: false, projetosIds: ["p6"],
+        genero: "Mulher", raca: "Parda", escolaridade: "Mestrado", nacionalidade: "Brasileira"
+      },
+      { 
+        id: "m6", nome: "Rafael Torres", email: "rafael.torres@ex.com", 
+        area: "Marketing Digital", 
+        competencias: ["Marketing Digital", "Branding", "Estratégia"],
+        ativo: true, projetosIds: ["p2", "p5"],
+        genero: "Homem", raca: "Pardo", escolaridade: "Superior Completo", nacionalidade: "Brasileira"
+      },
+      { 
+        id: "m7", nome: "Patrícia Souza", email: "patricia.souza@ex.com", 
+        area: "Vendas e Negociação", 
+        competencias: ["Vendas e Negociação", "Gestão Comercial", "Relacionamento"],
+        ativo: true, projetosIds: ["p1", "p4"],
+        genero: "Mulher", raca: "Branca", escolaridade: "Pós-graduação", nacionalidade: "Brasileira"
+      },
     ];
 
-    const areas = ["Marketing", "Finanças", "Vendas", "Tecnologia", "Gestão", "RH", "Operações", "Design"];
+    const areas = [
+      "Marketing Digital",
+      "Finanças e Contabilidade", 
+      "Vendas e Negociação",
+      "Tecnologia e Inovação",
+      "Gestão de Pessoas",
+      "Recursos Humanos",
+      "Operações e Logística",
+      "Design e Branding",
+      "E-commerce",
+      "Gastronomia",
+      "Moda e Beleza",
+      "Consultoria Empresarial",
+      "Varejo",
+      "Serviços",
+      "Produção e Manufatura",
+      "Educação e Treinamento"
+    ];
     const projetosIds = ["p1","p2","p3","p4","p5","p6"];
     const firstNames = ["Lucas","Mariana","Gabriel","Beatriz","Felipe","Camila","Eduardo","Isabela","Thiago","Laura","André","Mariana","Roberto","Bianca","Diego","Carolina","Gustavo","Mariana","Paulo","Natália"];
     const lastNames = ["Almeida","Barbosa","Cardoso","Dias","E Silva","Ferreira","Gomes","Henrique","Ibrahim","Jardim","Klein","Leal","Medeiros","Nunes","Oliveira","Pereira","Queiroz","Ribeiro","Santos","Teixeira"];
 
     const generated: any[] = [];
+    
+    // Dados para geração de mentores diversos
+    const generos = ["Homem", "Mulher", "Não-binário"];
+    const racas = ["Branca", "Preta", "Parda", "Amarela", "Indígena"];
+    const escolaridades = ["Ensino Médio", "Superior Incompleto", "Superior Completo", "Pós-graduação", "Mestrado", "Doutorado"];
+    const nacionalidades = ["Brasileira", "Brasileira", "Brasileira", "Brasileira", "Venezuelana", "Haitiana", "Portuguesa", "Argentina"];
 
     // gera 80 mentores adicionais (m8..m87) com nomes gerados realisticamente
     for (let i = 8; i <= 87; i++) {
@@ -39,14 +104,27 @@ export const crmMock: CRMState = {
       const p1 = projetosIds[i % projetosIds.length];
       const p2 = projetosIds[(i + 2) % projetosIds.length];
       const projetosFor = i % 3 === 0 ? [p1] : [p1, p2];
+      
+      // Gera 2-4 competências relacionadas à área principal
+      const numCompetencias = 2 + (i % 3);
+      const competenciasDoMentor = [area];
+      const competenciasExtras = areas.filter(a => a !== area);
+      for (let j = 1; j < numCompetencias && j < competenciasExtras.length; j++) {
+        competenciasDoMentor.push(competenciasExtras[(i * j) % competenciasExtras.length]);
+      }
 
       generated.push({
         id,
         nome,
         email,
         area,
+        competencias: competenciasDoMentor,
         ativo,
         projetosIds: projetosFor,
+        genero: generos[i % generos.length],
+        raca: racas[i % racas.length],
+        escolaridade: escolaridades[i % escolaridades.length],
+        nacionalidade: nacionalidades[i % nacionalidades.length],
       });
     }
 
@@ -59,6 +137,25 @@ export const crmMock: CRMState = {
     const projetosIds = ["p1","p2","p3","p4","p5","p6"];
     // usa todos os mentores gerados (m1..m87)
     const mentoresIds = Array.from({ length: 87 }, (_, k) => `m${k + 1}`);
+    // Áreas de conhecimento/negócio realistas
+    const areasNegocio = [
+      "Marketing Digital",
+      "Finanças e Contabilidade", 
+      "Vendas e Negociação",
+      "Tecnologia e Inovação",
+      "Gestão de Pessoas",
+      "Recursos Humanos",
+      "Operações e Logística",
+      "Design e Branding",
+      "E-commerce",
+      "Gastronomia",
+      "Moda e Beleza",
+      "Consultoria Empresarial",
+      "Varejo",
+      "Serviços",
+      "Produção e Manufatura",
+      "Educação e Treinamento"
+    ];
     const itens: any[] = [];
     const start = new Date("2025-01-01T00:00:00.000Z").getTime();
     const end = new Date("2025-11-18T23:59:59.000Z").getTime();
@@ -212,14 +309,104 @@ export const crmMock: CRMState = {
       const dataStatus = new Date(dataRegistroBase);
       dataStatus.setDate(dataStatus.getDate() - Math.floor(pseudoRandom(i + 220) * 3));
 
+      // Define área de negócio baseada no índice
+      const areaNegocio = areasNegocio[i % areasNegocio.length];
+      
+      // Desafios específicos para cada área de conhecimento
+      const desafiosPorArea: Record<string, string[]> = {
+        "Marketing Digital": [
+          "Aumentar engajamento nas redes sociais e alcançar novos clientes",
+          "Criar estratégia de conteúdo e campanhas digitais efetivas",
+          "Melhorar taxa de conversão no site e funil de vendas"
+        ],
+        "Finanças e Contabilidade": [
+          "Organizar fluxo de caixa e controle financeiro",
+          "Reduzir custos operacionais e melhorar rentabilidade",
+          "Estruturar precificação e análise de viabilidade"
+        ],
+        "Vendas e Negociação": [
+          "Aumentar taxa de conversão e ticket médio",
+          "Desenvolver técnicas de negociação e fechamento",
+          "Expandir base de clientes e fidelização"
+        ],
+        "Tecnologia e Inovação": [
+          "Implementar soluções tecnológicas e automação",
+          "Desenvolver produto digital e MVP",
+          "Melhorar infraestrutura tecnológica do negócio"
+        ],
+        "Gestão de Pessoas": [
+          "Estruturar processos de recrutamento e seleção",
+          "Desenvolver liderança e gestão de equipe",
+          "Criar plano de carreira e retenção de talentos"
+        ],
+        "Recursos Humanos": [
+          "Implementar política de benefícios e cultura organizacional",
+          "Estruturar avaliação de desempenho e feedback",
+          "Resolver conflitos e melhorar clima organizacional"
+        ],
+        "Operações e Logística": [
+          "Otimizar processos operacionais e reduzir desperdícios",
+          "Melhorar gestão de estoque e fornecedores",
+          "Implementar controle de qualidade e produtividade"
+        ],
+        "Design e Branding": [
+          "Criar identidade visual e posicionamento de marca",
+          "Desenvolver materiais de comunicação e branding",
+          "Melhorar experiência do cliente e design de produto"
+        ],
+        "E-commerce": [
+          "Aumentar vendas online e taxa de conversão",
+          "Melhorar experiência de compra e checkout",
+          "Implementar estratégias de remarketing e upsell"
+        ],
+        "Gastronomia": [
+          "Otimizar cardápio e precificação de pratos",
+          "Melhorar gestão de cozinha e reduzir desperdício",
+          "Expandir delivery e fortalecer marca no mercado local"
+        ],
+        "Moda e Beleza": [
+          "Criar coleção alinhada ao público-alvo",
+          "Aumentar vendas e fortalecer presença digital",
+          "Melhorar atendimento e experiência do cliente"
+        ],
+        "Consultoria Empresarial": [
+          "Estruturar metodologia e pacotes de serviços",
+          "Captar novos clientes corporativos",
+          "Posicionar-se como referência no mercado"
+        ],
+        "Varejo": [
+          "Aumentar giro de estoque e margem de lucro",
+          "Melhorar layout da loja e experiência de compra",
+          "Implementar programa de fidelidade e vendas"
+        ],
+        "Serviços": [
+          "Estruturar portfólio de serviços e precificação",
+          "Aumentar base de clientes e recorrência",
+          "Melhorar processos de atendimento e qualidade"
+        ],
+        "Produção e Manufatura": [
+          "Otimizar linha de produção e reduzir custos",
+          "Melhorar controle de qualidade e processos",
+          "Expandir capacidade produtiva e novos produtos"
+        ],
+        "Educação e Treinamento": [
+          "Desenvolver cursos e conteúdos educacionais",
+          "Captar alunos e aumentar taxa de retenção",
+          "Criar plataforma de ensino e metodologia"
+        ]
+      };
+      
+      const desafiosArea = desafiosPorArea[areaNegocio] || ["Desenvolver estratégias de crescimento e melhorar gestão do negócio"];
+      const desafio = desafiosArea[i % desafiosArea.length];
+
       itens.push({
         id,
         empreendedor,
-        negocio: i % 3 === 0 ? `Negócio ${i}` : (i % 4 === 0 ? "—" : `Comércio ${i}`),
+        negocio: areaNegocio,
         projetoId,
         status,
         mentorId,
-        desafio: `Desafio número ${i}: melhorar ${i % 7 === 0 ? 'finanças' : i % 5 === 0 ? 'marketing' : 'organização'} do negócio.`,
+        desafio,
         dataCriacaoISO: created,
         ultimaAtualizacaoISO: updated,
         progresso,
@@ -245,6 +432,7 @@ export const crmMock: CRMState = {
         ...itens[1],
         id: "s2",
         empreendedor: "Francisco Oceano",
+        negocio: "Música e Entretenimento",
         projetoId: "p1",
         status: "ativa",
         mentorId: "m2",

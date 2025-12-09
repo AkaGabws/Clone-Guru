@@ -7,6 +7,7 @@ type Action =
   | { type: "MUDAR_STATUS"; payload: { mentoriaId: string; status: StatusMentoria } }
   | { type: "ATRIBUIR_MENTOR"; payload: { mentoriaId: string; mentorId?: string } }
   | { type: "ATUALIZAR_MENTOR"; payload: { mentor: Mentor } }
+  | { type: "ATUALIZAR_MENTORIA"; payload: { mentoriaId: string; dados: Partial<Mentoria> } }
   | { type: "ADICIONAR_RELATO"; payload: { relato: Relato } }
   | { type: "EDITAR_RELATO"; payload: { relatoId: string; relato: Partial<Relato> } }
   | { type: "EXCLUIR_RELATO"; payload: { relatoId: string } }
@@ -46,6 +47,16 @@ function crmReducer(state: CRMState, action: Action): CRMState {
       const { mentor } = action.payload;
       const mentores = state.mentores.map((m) => (m.id === mentor.id ? { ...mentor } : m));
       return { ...state, mentores };
+    }
+
+    case "ATUALIZAR_MENTORIA": {
+      const { mentoriaId, dados } = action.payload;
+      const mentorias = state.mentorias.map((m) =>
+        m.id === mentoriaId 
+          ? { ...m, ...dados, ultimaAtualizacaoISO: new Date().toISOString() } 
+          : m
+      );
+      return { ...state, mentorias };
     }
 
     case "ADICIONAR_RELATO": {

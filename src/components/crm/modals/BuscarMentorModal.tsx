@@ -5,29 +5,48 @@ interface BuscarMentorModalProps {
     onClose: () => void;
     mentores: Array<{ id: string; nome: string; email?: string; area?: string }>;
     onSelecionar: (mentorId: string) => void;
+    areaSugerida?: string; // Área da mentoria para filtro automático
 }
 
-export function BuscarMentorModal({ isOpen, onClose, mentores, onSelecionar }: BuscarMentorModalProps) {
+export function BuscarMentorModal({ isOpen, onClose, mentores, onSelecionar, areaSugerida }: BuscarMentorModalProps) {
     const [buscarMentor, setBuscarMentor] = React.useState("");
+    const [mostrarTodos, setMostrarTodos] = React.useState(false);
 
     const mentoresFiltrados = React.useMemo(() => {
-        if (!buscarMentor) return mentores;
+        let resultado = mentores;
         
-        const buscaLower = buscarMentor.toLowerCase();
-        return mentores.filter((m) => 
-            m.nome.toLowerCase().includes(buscaLower) ||
-            m.email?.toLowerCase().includes(buscaLower) ||
-            m.area?.toLowerCase().includes(buscaLower)
-        );
-    }, [mentores, buscarMentor]);
+        // Filtro automático por área (se não estiver mostrando todos)
+        if (areaSugerida && !mostrarTodos) {
+            resultado = resultado.filter((m) => 
+                m.area?.toLowerCase().includes(areaSugerida.toLowerCase())
+            );
+        }
+        
+        // Filtro de busca manual
+        if (buscarMentor) {
+            const buscaLower = buscarMentor.toLowerCase();
+            resultado = resultado.filter((m) => 
+                m.nome.toLowerCase().includes(buscaLower) ||
+                m.email?.toLowerCase().includes(buscaLower) ||
+                m.area?.toLowerCase().includes(buscaLower)
+            );
+        }
+        
+        return resultado;
+    }, [mentores, buscarMentor, areaSugerida, mostrarTodos]);
 
     React.useEffect(() => {
         if (!isOpen) {
             setBuscarMentor("");
+            setMostrarTodos(false);
         }
     }, [isOpen]);
 
     if (!isOpen) return null;
+
+    const totalMentoresArea = areaSugerida 
+        ? mentores.filter(m => m.area?.toLowerCase().includes(areaSugerida.toLowerCase())).length 
+        : 0;
 
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center">
@@ -43,6 +62,39 @@ export function BuscarMentorModal({ isOpen, onClose, mentores, onSelecionar }: B
                         Fechar
                     </button>
                 </div>
+
+                {/* Alerta de filtro automático */}
+                {areaSugerida && !mostrarTodos && (
+                    <div className="mb-3 p-2 bg-blue-50 border border-blue-200 rounded-md">
+                        <div className="flex items-center justify-between">
+                            <p className="text-xs text-blue-800">
+                                <strong>Filtro automático:</strong> Mostrando apenas mentores de <strong>{areaSugerida}</strong> ({totalMentoresArea})
+                            </p>
+                            <button
+                                onClick={() => setMostrarTodos(true)}
+                                className="text-xs text-blue-600 hover:text-blue-800 underline whitespace-nowrap ml-2"
+                            >
+                                Ver todos
+                            </button>
+                        </div>
+                    </div>
+                )}
+
+                {areaSugerida && mostrarTodos && (
+                    <div className="mb-3 p-2 bg-gray-50 border border-gray-200 rounded-md">
+                        <div className="flex items-center justify-between">
+                            <p className="text-xs text-gray-700">
+                                Mostrando todos os mentores ({mentores.length})
+                            </p>
+                            <button
+                                onClick={() => setMostrarTodos(false)}
+                                className="text-xs text-blue-600 hover:text-blue-800 underline whitespace-nowrap ml-2"
+                            >
+                                Filtrar por {areaSugerida}
+                            </button>
+                        </div>
+                    </div>
+                )}
 
                 <input
                     type="text"

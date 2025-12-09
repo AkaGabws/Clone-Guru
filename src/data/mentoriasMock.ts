@@ -9,8 +9,8 @@ export const mentoriasMock: Mentoria[] = [
     status: 'ativa',
     empreendedor: {
       nome: 'Gabriel Marques Alves',
-      desafios: 'TESTE',
-      sobreNegocio: 'TESTE',
+      desafios: 'Preciso melhorar a captação de novos clientes e fortalecer a presença digital do meu negócio',
+      sobreNegocio: 'Trabalho com serviços de marketing e vendas para pequenos negócios, oferecendo consultoria e suporte na criação de estratégias comerciais',
       areaAtuacao: 'Serviço',
       setor: 'Vendas/Marketing',
       inscritoDesde: '2025-05-23',
