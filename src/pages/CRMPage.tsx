@@ -68,6 +68,8 @@ export default function CRMPage() {
       aguardando: (byStatus["nova"] || 0) + (byStatus["triagem"] || 0) + (byStatus["agendada"] || 0),
       concluidas: byStatus["concluida"] || 0,
       canceladas: byStatus["cancelada"] || 0,
+      encontros: byStatus["encontro"] || 0,
+      expiradas: byStatus["expirada"] || 0,
     };
   }, [state.mentorias]);
 
@@ -96,8 +98,16 @@ export default function CRMPage() {
             <p className="text-2xl font-bold text-blue-900">{totals.concluidas}</p>
           </Card>
           <Card className="p-4">
+            <p className="text-xs text-gray-500">Encontros</p>
+            <p className="text-2xl font-bold text-blue-900">{totals.encontros}</p>
+          </Card>
+          <Card className="p-4">
             <p className="text-xs text-gray-500">Canceladas</p>
             <p className="text-2xl font-bold text-blue-900">{totals.canceladas}</p>
+          </Card>
+          <Card className="p-4">
+            <p className="text-xs text-gray-500">expiradas</p>
+            <p className="text-2xl font-bold text-blue-900">{totals.expiradas}</p>
           </Card>
         </div>
 

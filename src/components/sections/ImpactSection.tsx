@@ -1,7 +1,7 @@
 import React from "react";
 import { Badge } from "../ui/badge";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "../ui/card";
-import { Check } from "lucide-react";
+import { Check, user, Users, Target, Rocket, Heart } from "lucide-react";
 
 export function ImpactSection() {
   return (
@@ -13,30 +13,25 @@ export function ImpactSection() {
         </div>
         <div className="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto">
           <Card className="border-0 shadow-lg">
-            <CardHeader className="text-center">
-              <CardTitle className="font-heading text-xl">Aumento de renda</CardTitle>
+            <CardContent className="space-y-3">
+              <Users className="w-10 h-10 text-blue-900 shrink-0" />
               <div className="mt-4"><span className="text-3xl font-bold text-blue-900">+82%</span></div>
-            </CardHeader>
-            <CardContent className="space-y-3">
-              <div className="flex items-center space-x-3 text-slate-700"><Check className="h-4 w-4 text-yellow-500" /><span>dos empreendedores relataram aumento na confiança para gerir seus negócios</span></div>
+              <div className="flex items-center space-x-3 text-slate-700"><span>dos empreendedores relataram aumento na confiança para gerir seus negócios</span></div>
             </CardContent>
           </Card>
           <Card className="border-0 shadow-lg">
-            <CardHeader className="text-center">
-              <CardTitle className="font-heading text-xl">Acesso a rede</CardTitle>
+            
+            <CardContent className="space-y-3">
+              <Rocket className="w-10 h-10 text-blue-900 shrink-0" />
               <div className="mt-4"><span className="text-3xl font-bold text-blue-900">+74%</span></div>
-            </CardHeader>
-            <CardContent className="space-y-3">
-              <div className="flex items-center space-x-3 text-slate-700"><Check className="h-4 w-4 text-yellow-500" /><span>conseguiram expandir suas empresas.</span></div>
+              <div className="flex items-center space-x-3 text-slate-700"><span>conseguiram expandir suas empresas.</span></div>
             </CardContent>
           </Card>
           <Card className="border-0 shadow-lg">
-            <CardHeader className="text-center">
-              <CardTitle className="font-heading text-xl">Bem-estar e confiança</CardTitle>
-              <div className="mt-4"><span className="text-3xl font-bold text-blue-900">+70%</span></div>
-            </CardHeader>
             <CardContent className="space-y-3">
-              <div className="flex items-center space-x-3 text-slate-700"><Check className="h-4 w-4 text-yellow-500" /><span>afirmaram se sentir mais confiantes para tomar decisões.</span></div>
+              <Target className="w-10 h-10 text-blue-900 shrink-0" />
+              <div className="mt-4"><span className="text-3xl font-bold text-blue-900">+70%</span></div>
+              <div className="flex items-center space-x-3 text-slate-700"><span>afirmaram se sentir mais confiantes para tomar decisões.</span></div>
             </CardContent>
           </Card>
         </div>

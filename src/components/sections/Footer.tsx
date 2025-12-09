@@ -1,5 +1,6 @@
 import React from "react";
 import { logoGuru, logoAEWhite, aliancaEmpreendedoraSelos, seloDireitosHumanos, mitSolveWhite, odsWhiteLogo } from "../../constants/assets";
+import { CheckCircle } from "lucide-react";
 
 export function Footer() {
   return (
@@ -92,9 +93,9 @@ export function Footer() {
                     <div>2022</div>
                   </div>
                 </div>
-                <div className="w-12 h-12 border border-white rounded-full flex items-center justify-center text-center">
-                  <div className="text-xs">
-                    <div>✅</div>
+                <div className="w-12 h-12 border border-white rounded-full flex flex-col items-center justify-center text-center">
+                  <CheckCircle className="w-4 h-4 mb-0.5" />
+                  <div className="text-[7px] leading-tight">
                     <div>VALIDADO</div>
                     <div>INSTITUTO</div>
                     <div>DOAR</div>
