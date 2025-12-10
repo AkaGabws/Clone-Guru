@@ -1,7 +1,7 @@
 import React from "react";
 import { useCrm } from "../../store/CrmContext";
 import { Button } from "../../components/ui/button";
-import { User, Edit, ChevronLeft, ChevronRight, Eye, Mail, Phone, Check } from "lucide-react";
+import { User, Edit, ChevronLeft, ChevronRight, Eye, Mail, Phone, Check, Filter, Users, KanbanSquare, Info, Calendar, CheckSquare } from "lucide-react";
 
 interface MentorData {
   mentor: any;
@@ -47,10 +47,16 @@ export function MentorList() {
   // Estado para modais
   const [editId, setEditId] = React.useState<string | null>(null);
   const [detalhesId, setDetalhesId] = React.useState<string | null>(null);
+  const [mostrarModalFiltros, setMostrarModalFiltros] = React.useState(false);
 
-  // Extrai listas únicas de estados e competências
+  // Lista completa de estados brasileiros
+  const estadosBrasileiros = [
+    "AC", "AL", "AP", "AM", "BA", "CE", "DF", "ES", "GO", "MA",
+    "MT", "MS", "MG", "PA", "PB", "PR", "PE", "PI", "RJ", "RN",
+    "RS", "RO", "RR", "SC", "SP", "SE", "TO"
+  ];
   const estadosDisponiveis = React.useMemo(() => {
-    const estados = new Set<string>();
+    const estados = new Set<string>(estadosBrasileiros);
     state.mentores.forEach(m => {
       const estado = (m as any).estado || (m as any).uf;
       if (estado) estados.add(estado);
@@ -71,26 +77,42 @@ export function MentorList() {
     return Array.from(competencias).sort();
   }, [state.mentores]);
 
+  // Opções padrão para gênero
+  const generosPadrao = ["Homem", "Mulher", "Não-binário", "Outro", "Prefiro não informar"];
   const generosDisponiveis = React.useMemo(() => {
-    const generos = new Set<string>();
+    const generos = new Set<string>(generosPadrao);
     state.mentores.forEach(m => {
-      const genero = (m as any).genero;
+      const genero = (m as any).genero || (m as any).gender;
       if (genero) generos.add(genero);
     });
     return Array.from(generos).sort();
   }, [state.mentores]);
 
+  // Opções padrão para raça/cor
+  const racasPadrao = ["Branca", "Preta", "Parda", "Amarela", "Indígena", "Prefiro não informar"];
   const racasDisponiveis = React.useMemo(() => {
-    const racas = new Set<string>();
+    const racas = new Set<string>(racasPadrao);
     state.mentores.forEach(m => {
-      const raca = (m as any).raca;
+      const raca = (m as any).raca || (m as any).cor;
       if (raca) racas.add(raca);
     });
     return Array.from(racas).sort();
   }, [state.mentores]);
 
+  // Opções padrão para escolaridade
+  const escolaridadesPadrao = [
+    "Ensino Fundamental Incompleto",
+    "Ensino Fundamental Completo",
+    "Ensino Médio Incompleto",
+    "Ensino Médio Completo",
+    "Ensino Superior Incompleto",
+    "Ensino Superior Completo",
+    "Pós-graduação",
+    "Mestrado",
+    "Doutorado"
+  ];
   const escolaridadesDisponiveis = React.useMemo(() => {
-    const escolaridades = new Set<string>();
+    const escolaridades = new Set<string>(escolaridadesPadrao);
     state.mentores.forEach(m => {
       const escolaridade = (m as any).escolaridade;
       if (escolaridade) escolaridades.add(escolaridade);
@@ -98,8 +120,10 @@ export function MentorList() {
     return Array.from(escolaridades).sort();
   }, [state.mentores]);
 
+  // Opções padrão para nacionalidade
+  const nacionalidadesPadrao = ["Brasileira", "Estrangeira"];
   const nacionalidadesDisponiveis = React.useMemo(() => {
-    const nacionalidades = new Set<string>();
+    const nacionalidades = new Set<string>(nacionalidadesPadrao);
     state.mentores.forEach(m => {
       const nacionalidade = (m as any).nacionalidade;
       if (nacionalidade) nacionalidades.add(nacionalidade);
@@ -278,6 +302,36 @@ export function MentorList() {
   const indiceFim = indiceInicio + itensPorPagina;
   const mentoresPaginados = mentoresComDados.slice(indiceInicio, indiceFim);
 
+  // Conta filtros ativos
+  const filtrosAtivos = React.useMemo(() => {
+    let count = 0;
+    if (buscaLocal.trim()) count++;
+    if (projectFilter !== "todos") count++;
+    if (estadoFilter !== "todos") count++;
+    if (competenciaFilter !== "todos") count++;
+    if (generoFilter !== "todos") count++;
+    if (racaFilter !== "todos") count++;
+    if (escolaridadeFilter !== "todos") count++;
+    if (nacionalidadeFilter !== "todos") count++;
+    if (mentoriasAtivasFilter !== "todos") count++;
+    return count;
+  }, [buscaLocal, projectFilter, estadoFilter, competenciaFilter, generoFilter, racaFilter, escolaridadeFilter, nacionalidadeFilter, mentoriasAtivasFilter]);
+
+  // Limpar todos os filtros
+  const limparFiltros = () => {
+    setBuscaLocal("");
+    setProjectFilter("todos");
+    setEstadoFilter("todos");
+    setCompetenciaFilter("todos");
+    setGeneroFilter("todos");
+    setRacaFilter("todos");
+    setEscolaridadeFilter("todos");
+    setNacionalidadeFilter("todos");
+    setMentoriasAtivasFilter("todos");
+    setCustomMinMentoriasAtivas("");
+    setCustomMaxMentoriasAtivas("");
+  };
+
   // Reset página quando filtros mudam
   React.useEffect(() => {
     setPaginaAtual(1);
@@ -309,161 +363,27 @@ export function MentorList() {
             value={buscaLocal}
             onChange={(e) => setBuscaLocal(e.target.value)}
           />
+          
+          {/* Botão de Filtros */}
+          <Button
+            onClick={() => setMostrarModalFiltros(true)}
+            variant="outline"
+            className="h-10 px-4 flex items-center gap-2 relative"
+          >
+            <Filter className="w-4 h-4" />
+            Filtros
+            {filtrosAtivos > 0 && (
+              <span className="absolute -top-2 -right-2 bg-blue-600 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center font-bold">
+                {filtrosAtivos}
+              </span>
+            )}
+          </Button>
         </div>
 
-        {/* Linha 2: Filtros */}
-        <div className="flex gap-2 items-center flex-wrap">
-          {/* Filtro por Projeto */}
+        {/* Itens por página */}
+        <div className="flex justify-end">
           <select
             className="border rounded-md h-9 px-2 text-sm bg-white"
-            value={projectFilter}
-            onChange={(e) => setProjectFilter(e.target.value)}
-          >
-            <option value="todos">Todos projetos</option>
-            {state.projetos.map(p => <option key={p.id} value={p.id}>{p.nome}</option>)}
-          </select>
-
-          {/* Filtro por Estado */}
-          <select
-            className="border rounded-md h-9 px-2 text-sm bg-white"
-            value={estadoFilter}
-            onChange={(e) => setEstadoFilter(e.target.value)}
-          >
-            <option value="todos">Todos estados</option>
-            <option value="AC">Acre (AC)</option>
-            <option value="AL">Alagoas (AL)</option>
-            <option value="AP">Amapá (AP)</option>
-            <option value="AM">Amazonas (AM)</option>
-            <option value="BA">Bahia (BA)</option>
-            <option value="CE">Ceará (CE)</option>
-            <option value="DF">Distrito Federal (DF)</option>
-            <option value="ES">Espírito Santo (ES)</option>
-            <option value="GO">Goiás (GO)</option>
-            <option value="MA">Maranhão (MA)</option>
-            <option value="MT">Mato Grosso (MT)</option>
-            <option value="MS">Mato Grosso do Sul (MS)</option>
-            <option value="MG">Minas Gerais (MG)</option>
-            <option value="PA">Pará (PA)</option>
-            <option value="PB">Paraíba (PB)</option>
-            <option value="PR">Paraná (PR)</option>
-            <option value="PE">Pernambuco (PE)</option>
-            <option value="PI">Piauí (PI)</option>
-            <option value="RJ">Rio de Janeiro (RJ)</option>
-            <option value="RN">Rio Grande do Norte (RN)</option>
-            <option value="RS">Rio Grande do Sul (RS)</option>
-            <option value="RO">Rondônia (RO)</option>
-            <option value="RR">Roraima (RR)</option>
-            <option value="SC">Santa Catarina (SC)</option>
-            <option value="SP">São Paulo (SP)</option>
-            <option value="SE">Sergipe (SE)</option>
-            <option value="TO">Tocantins (TO)</option>
-            {estadosDisponiveis.map(estado => (
-              <option key={estado} value={estado}>{estado}</option>
-            ))}
-          </select>
-
-          {/* Filtro por Competência */}
-          <select
-            className="border rounded-md h-9 px-2 text-sm bg-white"
-            value={competenciaFilter}
-            onChange={(e) => setCompetenciaFilter(e.target.value)}
-          >
-            <option value="todos">Todas competências</option>
-            {competenciasDisponiveis.map(comp => (
-              <option key={comp} value={comp}>{comp}</option>
-            ))}
-          </select>
-
-          {/* Filtro por Gênero */}
-          <select
-            className="border rounded-md h-9 px-2 text-sm bg-white"
-            value={generoFilter}
-            onChange={(e) => setGeneroFilter(e.target.value)}
-          >
-            <option value="todos">Todos gêneros</option>
-            {generosDisponiveis.map(genero => (
-              <option key={genero} value={genero}>{genero}</option>
-            ))}
-          </select>
-
-          {/* Filtro por Raça */}
-          <select
-            className="border rounded-md h-9 px-2 text-sm bg-white"
-            value={racaFilter}
-            onChange={(e) => setRacaFilter(e.target.value)}
-          >
-            <option value="todos">Todas raças</option>
-            {racasDisponiveis.map(raca => (
-              <option key={raca} value={raca}>{raca}</option>
-            ))}
-          </select>
-
-          {/* Filtro por Escolaridade */}
-          <select
-            className="border rounded-md h-9 px-2 text-sm bg-white"
-            value={escolaridadeFilter}
-            onChange={(e) => setEscolaridadeFilter(e.target.value)}
-          >
-            <option value="todos">Todas escolaridades</option>
-            {escolaridadesDisponiveis.map(esc => (
-              <option key={esc} value={esc}>{esc}</option>
-            ))}
-          </select>
-
-          {/* Filtro por Nacionalidade */}
-          <select
-            className="border rounded-md h-9 px-2 text-sm bg-white"
-            value={nacionalidadeFilter}
-            onChange={(e) => setNacionalidadeFilter(e.target.value)}
-          >
-            <option value="todos">Todas nacionalidades</option>
-            {nacionalidadesDisponiveis.map(nac => (
-              <option key={nac} value={nac}>{nac}</option>
-            ))}
-          </select>
-          
-          {/* Filtro por Quantidade de Mentorias Ativas */}
-          <div className="flex items-center gap-1">
-            <select
-              className="border rounded-md h-9 px-2 text-sm bg-white"
-              value={mentoriasAtivasFilter}
-              onChange={(e) => setMentoriasAtivasFilter(e.target.value)}
-            >
-              <option value="todos">Todas mentorias ativas</option>
-              <option value="0">Sem mentorias ativas</option>
-              <option value="1-3">1-3 ativas</option>
-              <option value="4-6">4-6 ativas</option>
-              <option value="7-10">7-10 ativas</option>
-              <option value="11+">11+ ativas</option>
-              <option value="custom">Custom</option>
-            </select>
-
-            {mentoriasAtivasFilter === "custom" && (
-              <>
-                <input 
-                  type="number" 
-                  min="0"
-                  placeholder="Mín"
-                  className="h-9 px-2 text-sm border rounded-md bg-white w-20" 
-                  value={customMinMentoriasAtivas} 
-                  onChange={(e) => setCustomMinMentoriasAtivas(e.target.value)} 
-                />
-                <span className="text-xs text-gray-500">—</span>
-                <input 
-                  type="number" 
-                  min="0"
-                  placeholder="Máx"
-                  className="h-9 px-2 text-sm border rounded-md bg-white w-20" 
-                  value={customMaxMentoriasAtivas} 
-                  onChange={(e) => setCustomMaxMentoriasAtivas(e.target.value)} 
-                />
-              </>
-            )}
-          </div>
-
-          {/* Itens por página */}
-          <select
-            className="border rounded-md h-9 px-2 text-sm bg-white ml-auto"
             value={itensPorPagina}
             onChange={(e) => {
               setItensPorPagina(Number(e.target.value));
@@ -475,6 +395,172 @@ export function MentorList() {
             <option value={100}>100 por página</option>
           </select>
         </div>
+
+        {/* Resumo de Filtros Ativos - Sempre visível quando há filtros */}
+        {filtrosAtivos > 0 && (
+          <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 shadow-sm">
+            <div className="flex items-center justify-between mb-2">
+              <div className="flex items-center gap-2">
+                <Filter className="w-4 h-4 text-blue-700" />
+                <span className="text-sm font-semibold text-blue-900">
+                  Filtros Ativos ({filtrosAtivos})
+                </span>
+              </div>
+              <button
+                onClick={limparFiltros}
+                className="text-xs text-blue-600 hover:text-blue-800 font-medium underline flex items-center gap-1"
+              >
+                <span>Limpar todos</span>
+              </button>
+            </div>
+            <div className="flex flex-wrap gap-2">
+              {buscaLocal.trim() && (
+                <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-white border border-blue-300 text-blue-800 rounded-md text-xs font-medium shadow-sm hover:bg-blue-50 transition-colors">
+                  <Users className="w-3.5 h-3.5" />
+                  <span><strong>Busca:</strong> "{buscaLocal}"</span>
+                  <button
+                    onClick={() => setBuscaLocal("")}
+                    className="ml-1 hover:text-blue-900 hover:bg-blue-100 rounded-full w-4 h-4 flex items-center justify-center transition-colors"
+                    aria-label="Remover busca"
+                    title="Remover busca"
+                  >
+                    ×
+                  </button>
+                </span>
+              )}
+
+              {projectFilter !== "todos" && (
+                <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-white border border-blue-300 text-blue-800 rounded-md text-xs font-medium shadow-sm hover:bg-blue-50 transition-colors">
+                  <KanbanSquare className="w-3.5 h-3.5" />
+                  <span><strong>Projeto:</strong> {state.projetos.find(p => p.id === projectFilter)?.nome}</span>
+                  <button
+                    onClick={() => setProjectFilter("todos")}
+                    className="ml-1 hover:text-blue-900 hover:bg-blue-100 rounded-full w-4 h-4 flex items-center justify-center transition-colors"
+                    aria-label="Remover filtro"
+                    title="Remover filtro"
+                  >
+                    ×
+                  </button>
+                </span>
+              )}
+
+              {estadoFilter !== "todos" && (
+                <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-white border border-blue-300 text-blue-800 rounded-md text-xs font-medium shadow-sm hover:bg-blue-50 transition-colors">
+                  <Info className="w-3.5 h-3.5" />
+                  <span><strong>Estado:</strong> {estadoFilter}</span>
+                  <button
+                    onClick={() => setEstadoFilter("todos")}
+                    className="ml-1 hover:text-blue-900 hover:bg-blue-100 rounded-full w-4 h-4 flex items-center justify-center transition-colors"
+                    aria-label="Remover filtro"
+                    title="Remover filtro"
+                  >
+                    ×
+                  </button>
+                </span>
+              )}
+
+              {competenciaFilter !== "todos" && (
+                <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-white border border-blue-300 text-blue-800 rounded-md text-xs font-medium shadow-sm hover:bg-blue-50 transition-colors">
+                  <Info className="w-3.5 h-3.5" />
+                  <span><strong>Competência:</strong> {competenciaFilter}</span>
+                  <button
+                    onClick={() => setCompetenciaFilter("todos")}
+                    className="ml-1 hover:text-blue-900 hover:bg-blue-100 rounded-full w-4 h-4 flex items-center justify-center transition-colors"
+                    aria-label="Remover filtro"
+                    title="Remover filtro"
+                  >
+                    ×
+                  </button>
+                </span>
+              )}
+
+              {generoFilter !== "todos" && (
+                <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-white border border-blue-300 text-blue-800 rounded-md text-xs font-medium shadow-sm hover:bg-blue-50 transition-colors">
+                  <Info className="w-3.5 h-3.5" />
+                  <span><strong>Gênero:</strong> {generoFilter}</span>
+                  <button
+                    onClick={() => setGeneroFilter("todos")}
+                    className="ml-1 hover:text-blue-900 hover:bg-blue-100 rounded-full w-4 h-4 flex items-center justify-center transition-colors"
+                    aria-label="Remover filtro"
+                    title="Remover filtro"
+                  >
+                    ×
+                  </button>
+                </span>
+              )}
+
+              {racaFilter !== "todos" && (
+                <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-white border border-blue-300 text-blue-800 rounded-md text-xs font-medium shadow-sm hover:bg-blue-50 transition-colors">
+                  <Info className="w-3.5 h-3.5" />
+                  <span><strong>Raça:</strong> {racaFilter}</span>
+                  <button
+                    onClick={() => setRacaFilter("todos")}
+                    className="ml-1 hover:text-blue-900 hover:bg-blue-100 rounded-full w-4 h-4 flex items-center justify-center transition-colors"
+                    aria-label="Remover filtro"
+                    title="Remover filtro"
+                  >
+                    ×
+                  </button>
+                </span>
+              )}
+
+              {escolaridadeFilter !== "todos" && (
+                <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-white border border-blue-300 text-blue-800 rounded-md text-xs font-medium shadow-sm hover:bg-blue-50 transition-colors">
+                  <Info className="w-3.5 h-3.5" />
+                  <span><strong>Escolaridade:</strong> {escolaridadeFilter}</span>
+                  <button
+                    onClick={() => setEscolaridadeFilter("todos")}
+                    className="ml-1 hover:text-blue-900 hover:bg-blue-100 rounded-full w-4 h-4 flex items-center justify-center transition-colors"
+                    aria-label="Remover filtro"
+                    title="Remover filtro"
+                  >
+                    ×
+                  </button>
+                </span>
+              )}
+
+              {nacionalidadeFilter !== "todos" && (
+                <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-white border border-blue-300 text-blue-800 rounded-md text-xs font-medium shadow-sm hover:bg-blue-50 transition-colors">
+                  <Info className="w-3.5 h-3.5" />
+                  <span><strong>Nacionalidade:</strong> {nacionalidadeFilter}</span>
+                  <button
+                    onClick={() => setNacionalidadeFilter("todos")}
+                    className="ml-1 hover:text-blue-900 hover:bg-blue-100 rounded-full w-4 h-4 flex items-center justify-center transition-colors"
+                    aria-label="Remover filtro"
+                    title="Remover filtro"
+                  >
+                    ×
+                  </button>
+                </span>
+              )}
+
+              {mentoriasAtivasFilter !== "todos" && (
+                <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-white border border-blue-300 text-blue-800 rounded-md text-xs font-medium shadow-sm hover:bg-blue-50 transition-colors">
+                  <CheckSquare className="w-3.5 h-3.5" />
+                  <span>
+                    <strong>Mentorias Ativas:</strong>{' '}
+                    {mentoriasAtivasFilter === "custom" 
+                      ? `${customMinMentoriasAtivas || "0"} - ${customMaxMentoriasAtivas || "∞"}`
+                      : mentoriasAtivasFilter === "0" ? "Sem mentorias ativas"
+                      : mentoriasAtivasFilter}
+                  </span>
+                  <button
+                    onClick={() => {
+                      setMentoriasAtivasFilter("todos");
+                      setCustomMinMentoriasAtivas("");
+                      setCustomMaxMentoriasAtivas("");
+                    }}
+                    className="ml-1 hover:text-blue-900 hover:bg-blue-100 rounded-full w-4 h-4 flex items-center justify-center transition-colors"
+                    aria-label="Remover filtro"
+                    title="Remover filtro"
+                  >
+                    ×
+                  </button>
+                </span>
+              )}
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Tabela de Mentores */}
@@ -637,6 +723,369 @@ export function MentorList() {
 
       {/* Modal de Detalhes */}
       {detalhesId && <MentorDetalhesModal mentorId={detalhesId} onClose={() => setDetalhesId(null)} />}
+
+      {/* Modal de Filtros Avançados */}
+      {mostrarModalFiltros && (
+        <ModalFiltrosAvancados
+          projectFilter={projectFilter}
+          setProjectFilter={setProjectFilter}
+          estadoFilter={estadoFilter}
+          setEstadoFilter={setEstadoFilter}
+          competenciaFilter={competenciaFilter}
+          setCompetenciaFilter={setCompetenciaFilter}
+          generoFilter={generoFilter}
+          setGeneroFilter={setGeneroFilter}
+          racaFilter={racaFilter}
+          setRacaFilter={setRacaFilter}
+          escolaridadeFilter={escolaridadeFilter}
+          setEscolaridadeFilter={setEscolaridadeFilter}
+          nacionalidadeFilter={nacionalidadeFilter}
+          setNacionalidadeFilter={setNacionalidadeFilter}
+          mentoriasAtivasFilter={mentoriasAtivasFilter}
+          setMentoriasAtivasFilter={setMentoriasAtivasFilter}
+          customMinMentoriasAtivas={customMinMentoriasAtivas}
+          setCustomMinMentoriasAtivas={setCustomMinMentoriasAtivas}
+          customMaxMentoriasAtivas={customMaxMentoriasAtivas}
+          setCustomMaxMentoriasAtivas={setCustomMaxMentoriasAtivas}
+          projetos={state.projetos}
+          estadosDisponiveis={estadosDisponiveis}
+          competenciasDisponiveis={competenciasDisponiveis}
+          generosDisponiveis={generosDisponiveis}
+          racasDisponiveis={racasDisponiveis}
+          escolaridadesDisponiveis={escolaridadesDisponiveis}
+          nacionalidadesDisponiveis={nacionalidadesDisponiveis}
+          filtrosAtivos={filtrosAtivos}
+          onClose={() => setMostrarModalFiltros(false)}
+          onLimpar={limparFiltros}
+        />
+      )}
+    </div>
+  );
+}
+
+// Modal de Filtros Avançados
+function ModalFiltrosAvancados({
+  projectFilter,
+  setProjectFilter,
+  estadoFilter,
+  setEstadoFilter,
+  competenciaFilter,
+  setCompetenciaFilter,
+  generoFilter,
+  setGeneroFilter,
+  racaFilter,
+  setRacaFilter,
+  escolaridadeFilter,
+  setEscolaridadeFilter,
+  nacionalidadeFilter,
+  setNacionalidadeFilter,
+  mentoriasAtivasFilter,
+  setMentoriasAtivasFilter,
+  customMinMentoriasAtivas,
+  setCustomMinMentoriasAtivas,
+  customMaxMentoriasAtivas,
+  setCustomMaxMentoriasAtivas,
+  projetos,
+  estadosDisponiveis,
+  competenciasDisponiveis,
+  generosDisponiveis,
+  racasDisponiveis,
+  escolaridadesDisponiveis,
+  nacionalidadesDisponiveis,
+  filtrosAtivos,
+  onClose,
+  onLimpar,
+}: {
+  projectFilter: string;
+  setProjectFilter: (v: string) => void;
+  estadoFilter: string;
+  setEstadoFilter: (v: string) => void;
+  competenciaFilter: string;
+  setCompetenciaFilter: (v: string) => void;
+  generoFilter: string;
+  setGeneroFilter: (v: string) => void;
+  racaFilter: string;
+  setRacaFilter: (v: string) => void;
+  escolaridadeFilter: string;
+  setEscolaridadeFilter: (v: string) => void;
+  nacionalidadeFilter: string;
+  setNacionalidadeFilter: (v: string) => void;
+  mentoriasAtivasFilter: string;
+  setMentoriasAtivasFilter: (v: string) => void;
+  customMinMentoriasAtivas: string;
+  setCustomMinMentoriasAtivas: (v: string) => void;
+  customMaxMentoriasAtivas: string;
+  setCustomMaxMentoriasAtivas: (v: string) => void;
+  projetos: any[];
+  estadosDisponiveis: string[];
+  competenciasDisponiveis: string[];
+  generosDisponiveis: string[];
+  racasDisponiveis: string[];
+  escolaridadesDisponiveis: string[];
+  nacionalidadesDisponiveis: string[];
+  filtrosAtivos: number;
+  onClose: () => void;
+  onLimpar: () => void;
+}) {
+  React.useEffect(() => {
+    const handleEscape = (e: KeyboardEvent) => {
+      if (e.key === "Escape") onClose();
+    };
+    document.addEventListener("keydown", handleEscape);
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.removeEventListener("keydown", handleEscape);
+      document.body.style.overflow = "unset";
+    };
+  }, [onClose]);
+
+  return (
+    <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4">
+      <div className="fixed inset-0 bg-black/60" onClick={onClose} />
+      <div className="relative z-[10000] bg-white rounded-lg shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+        {/* Header */}
+        <div className="sticky top-0 bg-blue-900 px-6 py-4 flex items-center justify-between border-b z-10">
+          <div className="flex items-center gap-3">
+            <Filter className="w-5 h-5 text-yellow-400" />
+            <div>
+              <h2 className="text-xl font-bold text-yellow-400">Filtros Avançados</h2>
+              {filtrosAtivos > 0 && (
+                <p className="text-sm text-white">{filtrosAtivos} filtro{filtrosAtivos > 1 ? 's' : ''} ativo{filtrosAtivos > 1 ? 's' : ''}</p>
+              )}
+            </div>
+          </div>
+          <button
+            onClick={onClose}
+            className="text-white hover:text-gray-300 text-2xl leading-none"
+            aria-label="Fechar"
+          >
+            ×
+          </button>
+        </div>
+
+        {/* Conteúdo */}
+        <div className="p-6 space-y-6">
+          {/* Seção: Projeto */}
+          <div>
+            <h3 className="text-sm font-bold text-gray-700 uppercase mb-3 flex items-center gap-2">
+              <KanbanSquare className="w-4 h-4" />
+              Projeto
+            </h3>
+            <div>
+              <label className="block text-xs text-gray-600 mb-1 font-medium">Projeto</label>
+              <select
+                className="w-full border rounded-md px-3 py-2 text-sm bg-white"
+                value={projectFilter}
+                onChange={(e) => setProjectFilter(e.target.value)}
+              >
+                <option value="todos">Todos projetos</option>
+                {projetos.map(p => <option key={p.id} value={p.id}>{p.nome}</option>)}
+              </select>
+            </div>
+          </div>
+
+          {/* Seção: Localização */}
+          <div>
+            <h3 className="text-sm font-bold text-gray-700 uppercase mb-3">Localização</h3>
+            <div>
+              <label className="block text-xs text-gray-600 mb-1 font-medium">Estado</label>
+              <select
+                className="w-full border rounded-md px-3 py-2 text-sm bg-white"
+                value={estadoFilter}
+                onChange={(e) => setEstadoFilter(e.target.value)}
+              >
+                <option value="todos">Todos estados</option>
+                {estadosDisponiveis.map(estado => {
+                  const nomeEstado: Record<string, string> = {
+                    "AC": "Acre (AC)",
+                    "AL": "Alagoas (AL)",
+                    "AP": "Amapá (AP)",
+                    "AM": "Amazonas (AM)",
+                    "BA": "Bahia (BA)",
+                    "CE": "Ceará (CE)",
+                    "DF": "Distrito Federal (DF)",
+                    "ES": "Espírito Santo (ES)",
+                    "GO": "Goiás (GO)",
+                    "MA": "Maranhão (MA)",
+                    "MT": "Mato Grosso (MT)",
+                    "MS": "Mato Grosso do Sul (MS)",
+                    "MG": "Minas Gerais (MG)",
+                    "PA": "Pará (PA)",
+                    "PB": "Paraíba (PB)",
+                    "PR": "Paraná (PR)",
+                    "PE": "Pernambuco (PE)",
+                    "PI": "Piauí (PI)",
+                    "RJ": "Rio de Janeiro (RJ)",
+                    "RN": "Rio Grande do Norte (RN)",
+                    "RS": "Rio Grande do Sul (RS)",
+                    "RO": "Rondônia (RO)",
+                    "RR": "Roraima (RR)",
+                    "SC": "Santa Catarina (SC)",
+                    "SP": "São Paulo (SP)",
+                    "SE": "Sergipe (SE)",
+                    "TO": "Tocantins (TO)"
+                  };
+                  return (
+                    <option key={estado} value={estado}>
+                      {nomeEstado[estado] || estado}
+                    </option>
+                  );
+                })}
+              </select>
+            </div>
+          </div>
+
+          {/* Seção: Competências */}
+          <div>
+            <h3 className="text-sm font-bold text-gray-700 uppercase mb-3">Competências</h3>
+            <div>
+              <label className="block text-xs text-gray-600 mb-1 font-medium">Competência</label>
+              <select
+                className="w-full border rounded-md px-3 py-2 text-sm bg-white"
+                value={competenciaFilter}
+                onChange={(e) => setCompetenciaFilter(e.target.value)}
+              >
+                <option value="todos">Todas competências</option>
+                {competenciasDisponiveis.map(comp => (
+                  <option key={comp} value={comp}>{comp}</option>
+                ))}
+              </select>
+            </div>
+          </div>
+
+          {/* Seção: Dados Demográficos */}
+          <div>
+            <h3 className="text-sm font-bold text-gray-700 uppercase mb-3">Dados Demográficos</h3>
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="block text-xs text-gray-600 mb-1 font-medium">Gênero</label>
+                <select
+                  className="w-full border rounded-md px-3 py-2 text-sm bg-white"
+                  value={generoFilter}
+                  onChange={(e) => setGeneroFilter(e.target.value)}
+                >
+                  <option value="todos">Todos gêneros</option>
+                  {generosDisponiveis.map(genero => (
+                    <option key={genero} value={genero}>{genero}</option>
+                  ))}
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-xs text-gray-600 mb-1 font-medium">Raça</label>
+                <select
+                  className="w-full border rounded-md px-3 py-2 text-sm bg-white"
+                  value={racaFilter}
+                  onChange={(e) => setRacaFilter(e.target.value)}
+                >
+                  <option value="todos">Todas raças</option>
+                  {racasDisponiveis.map(raca => (
+                    <option key={raca} value={raca}>{raca}</option>
+                  ))}
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-xs text-gray-600 mb-1 font-medium">Escolaridade</label>
+                <select
+                  className="w-full border rounded-md px-3 py-2 text-sm bg-white"
+                  value={escolaridadeFilter}
+                  onChange={(e) => setEscolaridadeFilter(e.target.value)}
+                >
+                  <option value="todos">Todas escolaridades</option>
+                  {escolaridadesDisponiveis.map(esc => (
+                    <option key={esc} value={esc}>{esc}</option>
+                  ))}
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-xs text-gray-600 mb-1 font-medium">Nacionalidade</label>
+                <select
+                  className="w-full border rounded-md px-3 py-2 text-sm bg-white"
+                  value={nacionalidadeFilter}
+                  onChange={(e) => setNacionalidadeFilter(e.target.value)}
+                >
+                  <option value="todos">Todas nacionalidades</option>
+                  {nacionalidadesDisponiveis.map(nac => (
+                    <option key={nac} value={nac}>{nac}</option>
+                  ))}
+                </select>
+              </div>
+            </div>
+          </div>
+
+          {/* Seção: Mentorias Ativas */}
+          <div>
+            <h3 className="text-sm font-bold text-gray-700 uppercase mb-3">Quantidade de Mentorias Ativas</h3>
+            <div className="space-y-3">
+              <div>
+                <label className="block text-xs text-gray-600 mb-1 font-medium">Filtro de Mentorias Ativas</label>
+                <select
+                  className="w-full border rounded-md px-3 py-2 text-sm bg-white"
+                  value={mentoriasAtivasFilter}
+                  onChange={(e) => setMentoriasAtivasFilter(e.target.value)}
+                >
+                  <option value="todos">Todas mentorias ativas</option>
+                  <option value="0">Sem mentorias ativas</option>
+                  <option value="1-3">1-3 ativas</option>
+                  <option value="4-6">4-6 ativas</option>
+                  <option value="7-10">7-10 ativas</option>
+                  <option value="11+">11+ ativas</option>
+                  <option value="custom">Personalizado</option>
+                </select>
+              </div>
+
+              {mentoriasAtivasFilter === "custom" && (
+                <div className="grid grid-cols-2 gap-3 pl-4 border-l-2 border-blue-200">
+                  <div>
+                    <label className="block text-xs text-gray-600 mb-1 font-medium">Mínimo</label>
+                    <input
+                      type="number"
+                      min="0"
+                      placeholder="Ex: 0"
+                      className="w-full px-3 py-2 text-sm border rounded-md bg-white"
+                      value={customMinMentoriasAtivas}
+                      onChange={(e) => setCustomMinMentoriasAtivas(e.target.value)}
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs text-gray-600 mb-1 font-medium">Máximo</label>
+                    <input
+                      type="number"
+                      min="0"
+                      placeholder="Ex: 10"
+                      className="w-full px-3 py-2 text-sm border rounded-md bg-white"
+                      value={customMaxMentoriasAtivas}
+                      onChange={(e) => setCustomMaxMentoriasAtivas(e.target.value)}
+                    />
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+
+        {/* Footer */}
+        <div className="sticky bottom-0 bg-gray-50 border-t px-6 py-4 flex justify-between items-center">
+          <Button
+            onClick={() => {
+              onLimpar();
+              onClose();
+            }}
+            variant="outline"
+            className="text-gray-700"
+          >
+            Limpar Filtros
+          </Button>
+          <Button
+            onClick={onClose}
+            className="bg-blue-900 hover:bg-blue-800 text-white"
+          >
+            Aplicar Filtros
+          </Button>
+        </div>
+      </div>
     </div>
   );
 }

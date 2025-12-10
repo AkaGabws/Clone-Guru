@@ -2,7 +2,7 @@ import React from "react";
 import { Button } from "../../components/ui/button";
 import { useCrm } from "../../store/CrmContext";
 import { StatusMentoria } from "../../types/crm";
-import { User, Video, CheckSquare, Edit, AlertTriangle, Info, Check } from "lucide-react";
+import { User, Video, CheckSquare, Edit, AlertTriangle, Info, Check, Calendar } from "lucide-react";
 import { Filter, Users, KanbanSquare, List, NotebookPen } from "lucide-react";
 import { MentoriaDetalhesModal, BuscarMentorModal, AcompanhamentoModal } from "./modals";
 
@@ -425,6 +425,7 @@ export function MentoriaKanban() {
   // Conta filtros ativos
   const filtrosAtivos = React.useMemo(() => {
     let count = 0;
+    if (buscaLocal.trim()) count++;
     if (projectFilter !== "todos") count++;
     if (areaFilter !== "todos") count++;
     if (dateFilter !== "todos") count++;
@@ -432,10 +433,11 @@ export function MentoriaKanban() {
     if ((encontrosFilter === "custom") && (customMinEncontros || customMaxEncontros)) count++;
     if (statusAcompanhamentoFilter !== "todos") count++;
     return count;
-  }, [projectFilter, areaFilter, dateFilter, encontrosFilter, customMinEncontros, customMaxEncontros, statusAcompanhamentoFilter]);
+  }, [buscaLocal, projectFilter, areaFilter, dateFilter, encontrosFilter, customMinEncontros, customMaxEncontros, statusAcompanhamentoFilter]);
 
   // Limpar todos os filtros
   const limparFiltros = () => {
+    setBuscaLocal("");
     setProjectFilter("todos");
     setAreaFilter("todos");
     setDateFilter("todos");
@@ -536,106 +538,165 @@ export function MentoriaKanban() {
           </Button>
         </div>
 
-        {/* Resumo de Filtros Ativos */}
+        {/* Resumo de Filtros Ativos - Sempre visível quando há filtros */}
         {filtrosAtivos > 0 && (
-          <div className="flex flex-wrap gap-2 items-center">
-            <span className="text-xs text-gray-500 font-medium">Filtros ativos:</span>
-            
-            {projectFilter !== "todos" && (
-              <span className="inline-flex items-center gap-1 px-2 py-1 bg-blue-50 text-blue-700 rounded-md text-xs">
-                <strong>Projeto:</strong> {state.projetos.find(p => p.id === projectFilter)?.nome}
-                <button
-                  onClick={() => setProjectFilter("todos")}
-                  className="ml-1 hover:text-blue-900"
-                  aria-label="Remover filtro"
-                >
-                  ×
-                </button>
-              </span>
-            )}
+          <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 shadow-sm">
+            <div className="flex items-center justify-between mb-2">
+              <div className="flex items-center gap-2">
+                <Filter className="w-4 h-4 text-blue-700" />
+                <span className="text-sm font-semibold text-blue-900">
+                  Filtros Ativos ({filtrosAtivos})
+                </span>
+              </div>
+              <button
+                onClick={limparFiltros}
+                className="text-xs text-blue-600 hover:text-blue-800 font-medium underline flex items-center gap-1"
+              >
+                <span>Limpar todos</span>
+              </button>
+            </div>
+            <div className="flex flex-wrap gap-2">
+              {buscaLocal.trim() && (
+                <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-white border border-blue-300 text-blue-800 rounded-md text-xs font-medium shadow-sm hover:bg-blue-50 transition-colors">
+                  <Users className="w-3.5 h-3.5" />
+                  <span><strong>Busca:</strong> "{buscaLocal}"</span>
+                  <button
+                    onClick={() => setBuscaLocal("")}
+                    className="ml-1 hover:text-blue-900 hover:bg-blue-100 rounded-full w-4 h-4 flex items-center justify-center transition-colors"
+                    aria-label="Remover busca"
+                    title="Remover busca"
+                  >
+                    ×
+                  </button>
+                </span>
+              )}
 
-            {areaFilter !== "todos" && (
-              <span className="inline-flex items-center gap-1 px-2 py-1 bg-blue-50 text-blue-700 rounded-md text-xs">
-                <strong>Área:</strong> {areaFilter}
-                <button
-                  onClick={() => setAreaFilter("todos")}
-                  className="ml-1 hover:text-blue-900"
-                  aria-label="Remover filtro"
-                >
-                  ×
-                </button>
-              </span>
-            )}
+              {projectFilter !== "todos" && (
+                <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-white border border-blue-300 text-blue-800 rounded-md text-xs font-medium shadow-sm hover:bg-blue-50 transition-colors">
+                  <KanbanSquare className="w-3.5 h-3.5" />
+                  <span><strong>Projeto:</strong> {state.projetos.find(p => p.id === projectFilter)?.nome}</span>
+                  <button
+                    onClick={() => setProjectFilter("todos")}
+                    className="ml-1 hover:text-blue-900 hover:bg-blue-100 rounded-full w-4 h-4 flex items-center justify-center transition-colors"
+                    aria-label="Remover filtro"
+                    title="Remover filtro"
+                  >
+                    ×
+                  </button>
+                </span>
+              )}
 
-            {dateFilter !== "todos" && (
-              <span className="inline-flex items-center gap-1 px-2 py-1 bg-blue-50 text-blue-700 rounded-md text-xs">
-                <strong>Data:</strong> {dateFilter === "custom" ? "Personalizado" : dateFilter}
-                <button
-                  onClick={() => {
-                    setDateFilter("todos");
-                    setCustomFrom("");
-                    setCustomTo("");
-                  }}
-                  className="ml-1 hover:text-blue-900"
-                  aria-label="Remover filtro"
-                >
-                  ×
-                </button>
-              </span>
-            )}
+              {areaFilter !== "todos" && (
+                <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-white border border-blue-300 text-blue-800 rounded-md text-xs font-medium shadow-sm hover:bg-blue-50 transition-colors">
+                  <Info className="w-3.5 h-3.5" />
+                  <span><strong>Área:</strong> {areaFilter}</span>
+                  <button
+                    onClick={() => setAreaFilter("todos")}
+                    className="ml-1 hover:text-blue-900 hover:bg-blue-100 rounded-full w-4 h-4 flex items-center justify-center transition-colors"
+                    aria-label="Remover filtro"
+                    title="Remover filtro"
+                  >
+                    ×
+                  </button>
+                </span>
+              )}
 
-            {encontrosFilter !== "custom" && encontrosFilter !== "todos" && (
-              <span className="inline-flex items-center gap-1 px-2 py-1 bg-blue-50 text-blue-700 rounded-md text-xs">
-                <strong>Encontros:</strong> {encontrosFilter === "0" ? "Sem encontros" : encontrosFilter}
-                <button
-                  onClick={() => setEncontrosFilter("custom")}
-                  className="ml-1 hover:text-blue-900"
-                  aria-label="Remover filtro"
-                >
-                  ×
-                </button>
-              </span>
-            )}
+              {dateFilter !== "todos" && (
+                <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-white border border-blue-300 text-blue-800 rounded-md text-xs font-medium shadow-sm hover:bg-blue-50 transition-colors">
+                  <Calendar className="w-3.5 h-3.5" />
+                  <span>
+                    <strong>Data:</strong>{' '}
+                    {dateFilter === "custom" 
+                      ? (() => {
+                          if (customFrom && customTo) {
+                            return `${new Date(customFrom).toLocaleDateString('pt-BR')} até ${new Date(customTo).toLocaleDateString('pt-BR')}`;
+                          } else if (customFrom) {
+                            return `A partir de ${new Date(customFrom).toLocaleDateString('pt-BR')}`;
+                          } else if (customTo) {
+                            return `Até ${new Date(customTo).toLocaleDateString('pt-BR')}`;
+                          }
+                          return "Personalizado";
+                        })()
+                      : dateFilter === "hoje" ? "Hoje"
+                      : dateFilter === "ultimos3Dias" ? "Últimos 3 dias"
+                      : dateFilter === "ultimaSemana" ? "Última semana"
+                      : dateFilter === "ultimoMes" ? "Último mês"
+                      : dateFilter === "ultimoAno" ? "Último ano"
+                      : dateFilter}
+                  </span>
+                  <button
+                    onClick={() => {
+                      setDateFilter("todos");
+                      setCustomFrom("");
+                      setCustomTo("");
+                    }}
+                    className="ml-1 hover:text-blue-900 hover:bg-blue-100 rounded-full w-4 h-4 flex items-center justify-center transition-colors"
+                    aria-label="Remover filtro"
+                    title="Remover filtro"
+                  >
+                    ×
+                  </button>
+                </span>
+              )}
 
-            {(encontrosFilter === "custom") && (customMinEncontros || customMaxEncontros) && (
-              <span className="inline-flex items-center gap-1 px-2 py-1 bg-blue-50 text-blue-700 rounded-md text-xs">
-                <strong>Encontros:</strong> {customMinEncontros || "0"} - {customMaxEncontros || "∞"}
-                <button
-                  onClick={() => {
-                    setCustomMinEncontros("");
-                    setCustomMaxEncontros("");
-                  }}
-                  className="ml-1 hover:text-blue-900"
-                  aria-label="Remover filtro"
-                >
-                  ×
-                </button>
-              </span>
-            )}
+              {encontrosFilter !== "custom" && encontrosFilter !== "todos" && (
+                <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-white border border-blue-300 text-blue-800 rounded-md text-xs font-medium shadow-sm hover:bg-blue-50 transition-colors">
+                  <CheckSquare className="w-3.5 h-3.5" />
+                  <span>
+                    <strong>Encontros:</strong> {encontrosFilter === "0" ? "Sem encontros" : encontrosFilter}
+                  </span>
+                  <button
+                    onClick={() => setEncontrosFilter("custom")}
+                    className="ml-1 hover:text-blue-900 hover:bg-blue-100 rounded-full w-4 h-4 flex items-center justify-center transition-colors"
+                    aria-label="Remover filtro"
+                    title="Remover filtro"
+                  >
+                    ×
+                  </button>
+                </span>
+              )}
 
-            {statusAcompanhamentoFilter !== "todos" && (
-              <span className="inline-flex items-center gap-1 px-2 py-1 bg-blue-50 text-blue-700 rounded-md text-xs">
-                <strong>Status Acomp.:</strong>{' '}
-                {statusAcompanhamentoFilter === "sem_status" 
-                  ? "Sem status" 
-                  : STATUS_ACOMPANHAMENTO_MAP[statusAcompanhamentoFilter as keyof typeof STATUS_ACOMPANHAMENTO_MAP]
-                }
-                <button
-                  onClick={() => setStatusAcompanhamentoFilter("todos")}
-                  className="ml-1 hover:text-blue-900"
-                  aria-label="Remover filtro"
-                >
-                  ×
-                </button>
-              </span>
-            )}
+              {(encontrosFilter === "custom") && (customMinEncontros || customMaxEncontros) && (
+                <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-white border border-blue-300 text-blue-800 rounded-md text-xs font-medium shadow-sm hover:bg-blue-50 transition-colors">
+                  <CheckSquare className="w-3.5 h-3.5" />
+                  <span>
+                    <strong>Encontros:</strong> {customMinEncontros || "0"} - {customMaxEncontros || "∞"}
+                  </span>
+                  <button
+                    onClick={() => {
+                      setCustomMinEncontros("");
+                      setCustomMaxEncontros("");
+                    }}
+                    className="ml-1 hover:text-blue-900 hover:bg-blue-100 rounded-full w-4 h-4 flex items-center justify-center transition-colors"
+                    aria-label="Remover filtro"
+                    title="Remover filtro"
+                  >
+                    ×
+                  </button>
+                </span>
+              )}
 
-            <button
-              onClick={limparFiltros}
-              className="text-xs text-gray-500 hover:text-gray-700 underline"
-            >
-              Limpar todos
-            </button>
+              {statusAcompanhamentoFilter !== "todos" && (
+                <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-white border border-blue-300 text-blue-800 rounded-md text-xs font-medium shadow-sm hover:bg-blue-50 transition-colors">
+                  <Info className="w-3.5 h-3.5" />
+                  <span>
+                    <strong>Status Acomp.:</strong>{' '}
+                    {statusAcompanhamentoFilter === "sem_status" 
+                      ? "Sem status" 
+                      : STATUS_ACOMPANHAMENTO_MAP[statusAcompanhamentoFilter as keyof typeof STATUS_ACOMPANHAMENTO_MAP]
+                    }
+                  </span>
+                  <button
+                    onClick={() => setStatusAcompanhamentoFilter("todos")}
+                    className="ml-1 hover:text-blue-900 hover:bg-blue-100 rounded-full w-4 h-4 flex items-center justify-center transition-colors"
+                    aria-label="Remover filtro"
+                    title="Remover filtro"
+                  >
+                    ×
+                  </button>
+                </span>
+              )}
+            </div>
           </div>
         )}
       </div>
@@ -1128,6 +1189,127 @@ function ModalFiltrosAvancados({
   );
 }
 
+// Modal de Confirmação de Reabertura
+function ModalConfirmarReabertura({
+  mentoria,
+  onClose,
+  onConfirmar,
+}: {
+  mentoria: any;
+  onClose: () => void;
+  onConfirmar: () => void;
+}) {
+  const { state } = useCrm();
+
+  React.useEffect(() => {
+    const handleEscape = (e: KeyboardEvent) => {
+      if (e.key === "Escape") onClose();
+    };
+    document.addEventListener("keydown", handleEscape);
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.removeEventListener("keydown", handleEscape);
+      document.body.style.overflow = "unset";
+    };
+  }, [onClose]);
+
+  const projeto = mentoria.projetoId ? state.projetos.find((p: any) => p.id === mentoria.projetoId) : null;
+
+  return (
+    <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4">
+      <div className="fixed inset-0 bg-black/70" onClick={onClose} />
+      <div className="relative z-[10000] bg-white rounded-lg shadow-2xl w-full max-w-md border-2 border-red-300">
+        {/* Header com destaque de alerta */}
+        <div className="px-6 py-4 border-b bg-red-50 border-red-200">
+          <div className="flex items-center gap-3">
+            <AlertTriangle className="w-6 h-6 text-red-600 shrink-0" />
+            <div>
+              <h2 className="text-xl font-bold text-red-900">Confirmar Reabertura de Mentoria</h2>
+              <p className="text-sm text-red-700 mt-1">Esta ação requer confirmação explícita</p>
+            </div>
+          </div>
+        </div>
+
+        {/* Conteúdo */}
+        <div className="p-6 space-y-4">
+          {/* Alerta principal */}
+          <div className="p-4 bg-red-50 border-2 border-red-300 rounded-md">
+            <div className="flex items-start gap-3">
+              <AlertTriangle className="w-5 h-5 text-red-600 shrink-0 mt-0.5" />
+              <div className="space-y-2">
+                <p className="text-sm font-bold text-red-900">
+                  Atenção: Você está prestes a reabrir uma mentoria cancelada!
+                </p>
+                <p className="text-xs text-red-800">
+                  Esta ação irá criar uma <strong>nova mentoria</strong> baseada na mentoria cancelada atual. 
+                  A mentoria original permanecerá cancelada e uma nova mentoria será adicionada ao sistema.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          {/* Informações da mentoria */}
+          <div className="p-4 bg-gray-50 border border-gray-200 rounded-md">
+            <p className="text-xs font-semibold text-gray-700 mb-2">Detalhes da Mentoria:</p>
+            <div className="space-y-1 text-xs text-gray-700">
+              <div className="flex gap-2">
+                <span className="font-medium">Empreendedor:</span>
+                <span>{mentoria.empreendedor}</span>
+              </div>
+              {projeto && (
+                <div className="flex gap-2">
+                  <span className="font-medium">Projeto:</span>
+                  <span>{projeto.nome}</span>
+                </div>
+              )}
+              {mentoria.negocio && (
+                <div className="flex gap-2">
+                  <span className="font-medium">Área:</span>
+                  <span>{mentoria.negocio}</span>
+                </div>
+              )}
+              {mentoria.desafio && (
+                <div className="flex gap-2">
+                  <span className="font-medium">Desafio:</span>
+                  <span className="line-clamp-2">{mentoria.desafio}</span>
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Aviso adicional */}
+          <div className="p-3 bg-yellow-50 border border-yellow-200 rounded-md">
+            <div className="flex items-start gap-2">
+              <Info className="w-4 h-4 text-yellow-600 shrink-0 mt-0.5" />
+              <p className="text-xs text-yellow-800">
+                <strong>Importante:</strong> Certifique-se de que realmente deseja reabrir esta mentoria. 
+                Esta ação não pode ser desfeita facilmente.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        {/* Footer */}
+        <div className="px-6 py-4 bg-gray-50 border-t flex justify-end gap-3">
+          <Button 
+            onClick={onClose} 
+            variant="outline"
+            className="border-gray-300 hover:bg-gray-100"
+          >
+            Cancelar
+          </Button>
+          <Button 
+            onClick={onConfirmar}
+            className="bg-red-600 hover:bg-red-700 text-white font-semibold"
+          >
+            Confirmar Reabertura
+          </Button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 // Modal de Edição de Projeto e Área
 function ModalEditarMentoria({
   mentoria,
@@ -1341,6 +1523,7 @@ function MatchCard({
   const [expanded, setExpanded] = React.useState(false);
   const [showMentorModal, setShowMentorModal] = React.useState(false);
   const [showEditarMentoriaModal, setShowEditarMentoriaModal] = React.useState(false);
+  const [showModalReabertura, setShowModalReabertura] = React.useState(false);
 
   // Estado local para atualização imediata da UI (evita "piscar")
   const [localStatus, setLocalStatus] = React.useState<string>(mentoria.status);
@@ -1746,6 +1929,32 @@ function MatchCard({
         />
       )}
 
+      {/* Modal de confirmação de reabertura */}
+      {showModalReabertura && (
+        <ModalConfirmarReabertura
+          mentoria={mentoria}
+          onClose={() => setShowModalReabertura(false)}
+          onConfirmar={() => {
+            // Cria uma nova mentoria baseada na atual, mas sem histórico
+            const novaMentoria: any = {
+              id: `mentoria-${Date.now()}`,
+              empreendedor: mentoria.empreendedor,
+              negocio: mentoria.negocio,
+              projetoId: mentoria.projetoId,
+              status: "nova" as StatusMentoria,
+              desafio: mentoria.desafio,
+              dataCriacaoISO: new Date().toISOString(),
+              ultimaAtualizacaoISO: new Date().toISOString(),
+            };
+            dispatch({ 
+              type: "ADICIONAR_MENTORIA", 
+              payload: { mentoria: novaMentoria } 
+            });
+            setShowModalReabertura(false);
+          }}
+        />
+      )}
+
       {/* Footer com info adicional */}
       <div className="px-4 py-2 bg-primary-50 border-t text-xs text-gray-500">
         <div className="flex items-center justify-between flex-wrap gap-2">
@@ -1781,26 +1990,10 @@ function MatchCard({
           {/* Botão para reabrir mentoria cancelada */}
           {abaAtiva === "canceladas" && localStatus === "cancelada" && (
             <button
-              onClick={() => {
-                // Cria uma nova mentoria baseada na atual, mas sem histórico
-                const novaMentoria: any = {
-                  id: `mentoria-${Date.now()}`,
-                  empreendedor: mentoria.empreendedor,
-                  negocio: mentoria.negocio,
-                  projetoId: mentoria.projetoId,
-                  status: "nova" as StatusMentoria,
-                  desafio: mentoria.desafio,
-                  dataCriacaoISO: new Date().toISOString(),
-                  ultimaAtualizacaoISO: new Date().toISOString(),
-                };
-                dispatch({ 
-                  type: "ADICIONAR_MENTORIA", 
-                  payload: { mentoria: novaMentoria } 
-                });
-              }}
+              onClick={() => setShowModalReabertura(true)}
               className="h-7 px-3 text-xs bg-green-600 text-white hover:bg-green-700 rounded-md transition-colors"
             >
-              Reabrir Mentoria
+              Recriar Mentoria
             </button>
           )}
         </div>

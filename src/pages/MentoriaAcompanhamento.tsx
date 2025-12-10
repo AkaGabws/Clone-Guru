@@ -1,10 +1,12 @@
 import React, { useMemo, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, X, AlertTriangle } from "lucide-react";
 import { Header } from "../components/sections/Header";
 import { Footer } from "../components/sections/Footer";
+import { useCrm } from "../store/CrmContext";
 
 type MentoriaProps = {
+  id?: string; // ID da mentoria no contexto CRM (opcional)
   tipo: string;
   nome: string;
   desafio: string;
@@ -19,6 +21,7 @@ type MentoriaProps = {
 export default function MentoriaAcompanhamento() {
   const navigate = useNavigate();
   const location = useLocation() as { state?: any };
+  const { state: crmState, dispatch } = useCrm();
 
   // Aceita state.mentoria OU state direto
   const mentoria = (location.state?.mentoria ?? location.state) as MentoriaProps | undefined;
@@ -41,6 +44,43 @@ export default function MentoriaAcompanhamento() {
   const metaMinutos = 210;
   const [concluidos] = useState(0);
   const faltam = useMemo(() => Math.max(metaMinutos - concluidos, 0), [metaMinutos, concluidos]);
+
+  // Estado do modal de cancelamento
+  const [mostrarModalCancelamento, setMostrarModalCancelamento] = useState(false);
+  const [motivoCancelamento, setMotivoCancelamento] = useState("");
+
+  // Função para cancelar a mentoria
+  const handleCancelarMentoria = () => {
+    if (!motivoCancelamento.trim()) {
+      alert("Por favor, informe o motivo do cancelamento.");
+      return;
+    }
+
+    // Se a mentoria tem ID no contexto CRM, atualiza via dispatch
+    if (mentoria.id) {
+      dispatch({
+        type: "MUDAR_STATUS",
+        payload: { mentoriaId: mentoria.id, status: "cancelada" }
+      });
+      dispatch({
+        type: "ATUALIZAR_ACOMPANHAMENTO",
+        payload: {
+          mentoriaId: mentoria.id,
+          acompanhamento: {
+            motivoCancelamento: motivoCancelamento.trim()
+          }
+        }
+      });
+      alert("Mentoria cancelada com sucesso!");
+    } else {
+      // Se não tem ID, apenas mostra mensagem
+      alert(`Mentoria cancelada. Motivo: ${motivoCancelamento}`);
+    }
+
+    setMostrarModalCancelamento(false);
+    setMotivoCancelamento("");
+    navigate(-1);
+  };
 
   return (
     <div className="min-h-screen bg-[#F5F7FA]">
@@ -151,6 +191,7 @@ export default function MentoriaAcompanhamento() {
             </button>
           </div>
         )}
+
       {/* Seção Azul - Acompanhamento */}
         <section className="bg-[#003D74] rounded-2xl shadow-lg px-10 py-10 text-white">
           {/* Título Principal */}
@@ -223,8 +264,20 @@ export default function MentoriaAcompanhamento() {
               {/* Checkbox */}
               <label className="flex items-start gap-3 text-sm text-white/95 cursor-pointer">
                 <input type="checkbox" className="mt-1 w-4 h-4 rounded" />
-                <span>Não houve próximo encontro. Quero salvar</span>
+                <span>Não haverá próximo encontro. Quero salvar</span>
               </label>
+              
+              {/* Botão de Cancelamento */}
+              <div className="pt-2 pb-4 border-t border-white/20">
+                <button 
+                  type="button"
+                  className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-red-600 text-white font-semibold text-sm shadow-lg hover:bg-red-700 hover:shadow-xl transition-all" 
+                  onClick={() => setMostrarModalCancelamento(true)}
+                >
+                  <X className="w-4 h-4" />
+                  Cancelar Mentoria
+                </button>
+              </div>
 
               {/* Botões */}
               <div className="flex flex-col items-center gap-4 pt-6">
@@ -250,6 +303,20 @@ export default function MentoriaAcompanhamento() {
         </section>
       
       </div>
+
+      {/* Modal de Cancelamento */}
+      {mostrarModalCancelamento && (
+        <ModalCancelamento
+          onClose={() => {
+            setMostrarModalCancelamento(false);
+            setMotivoCancelamento("");
+          }}
+          motivoCancelamento={motivoCancelamento}
+          setMotivoCancelamento={setMotivoCancelamento}
+          onConfirmar={handleCancelarMentoria}
+          nomeEmpreendedor={nome}
+        />
+      )}
 
       <Footer />
     </div>
@@ -286,6 +353,99 @@ function InfoBlock({ label, children }: { label: string; children: React.ReactNo
       </span>
       <div className="mt-2">{children}</div>
 
+    </div>
+  );
+}
+
+// Modal de Cancelamento
+function ModalCancelamento({
+  onClose,
+  motivoCancelamento,
+  setMotivoCancelamento,
+  onConfirmar,
+  nomeEmpreendedor,
+}: {
+  onClose: () => void;
+  motivoCancelamento: string;
+  setMotivoCancelamento: (value: string) => void;
+  onConfirmar: () => void;
+  nomeEmpreendedor: string;
+}) {
+  React.useEffect(() => {
+    const handleEscape = (e: KeyboardEvent) => {
+      if (e.key === "Escape") onClose();
+    };
+    document.addEventListener("keydown", handleEscape);
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.removeEventListener("keydown", handleEscape);
+      document.body.style.overflow = "unset";
+    };
+  }, [onClose]);
+
+  return (
+    <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4">
+      <div className="fixed inset-0 bg-black/60" onClick={onClose} />
+      <div className="relative z-[10000] bg-white rounded-lg shadow-2xl w-full max-w-lg">
+        {/* Header */}
+        <div className="bg-red-600 px-6 py-4 rounded-t-lg flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <AlertTriangle className="w-6 h-6 text-white" />
+            <h2 className="text-xl font-bold text-white">Cancelar Mentoria</h2>
+          </div>
+          <button
+            onClick={onClose}
+            className="text-white hover:text-gray-200 text-2xl leading-none"
+            aria-label="Fechar"
+          >
+            ×
+          </button>
+        </div>
+
+        {/* Conteúdo */}
+        <div className="p-6 space-y-4">
+          <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+            <p className="text-sm text-red-800">
+              <strong>Atenção:</strong> Você está prestes a cancelar a mentoria de <strong>{nomeEmpreendedor}</strong>.
+              Esta ação não pode ser desfeita.
+            </p>
+          </div>
+
+          <div>
+            <label className="block mb-2 text-sm font-semibold text-gray-700">
+              Motivo do Cancelamento <span className="text-red-600">*</span>
+            </label>
+            <textarea
+              className="w-full h-32 rounded-lg border-2 border-gray-300 px-4 py-3 text-sm outline-none
+                         focus:border-red-500 focus:ring-2 focus:ring-red-500/30 transition-all resize-none"
+              placeholder="Descreva o motivo do cancelamento da mentoria..."
+              value={motivoCancelamento}
+              onChange={(e) => setMotivoCancelamento(e.target.value)}
+            />
+            <p className="text-xs text-gray-500 mt-1">
+              Este campo é obrigatório para registrar o cancelamento.
+            </p>
+          </div>
+        </div>
+
+        {/* Footer */}
+        <div className="bg-gray-50 border-t px-6 py-4 flex justify-end gap-3 rounded-b-lg">
+          <button
+            onClick={onClose}
+            className="px-6 py-2 rounded-lg font-semibold text-sm text-gray-700 hover:bg-gray-200 transition-colors"
+          >
+            Cancelar
+          </button>
+          <button
+            onClick={onConfirmar}
+            disabled={!motivoCancelamento.trim()}
+            className="px-6 py-2 rounded-lg font-semibold text-sm bg-red-600 text-white hover:bg-red-700 
+                       disabled:bg-gray-300 disabled:text-gray-500 disabled:cursor-not-allowed transition-colors"
+          >
+            Confirmar Cancelamento
+          </button>
+        </div>
+      </div>
     </div>
   );
 }

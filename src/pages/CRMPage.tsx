@@ -68,10 +68,10 @@ export default function CRMPage() {
       aguardando: (byStatus["nova"] || 0) + (byStatus["triagem"] || 0) + (byStatus["agendada"] || 0),
       concluidas: byStatus["concluida"] || 0,
       canceladas: byStatus["cancelada"] || 0,
-      encontros: byStatus["encontro"] || 0,
+      encontros: state.relatos.length, // Conta todos os encontros (relatos) registrados
       expiradas: byStatus["expirada"] || 0,
     };
-  }, [state.mentorias]);
+  }, [state.mentorias, state.relatos]);
 
   return (
     <div className="min-h-screen bg-white">

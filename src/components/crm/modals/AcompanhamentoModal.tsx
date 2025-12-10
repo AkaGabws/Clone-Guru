@@ -164,10 +164,10 @@ export function AcompanhamentoModal({ mentoriaId, onClose }: AcompanhamentoModal
           </button>
         </div>
 
-        {/* Corpo com Scroll */}
+       
         <div className="overflow-y-auto p-6 space-y-6 flex-1">
           
-          {/* Campo obrigatório: Quem está registrando */}
+          {/* Campo obrigatório: Quem está registrando
           <div className="p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
             <label className="text-sm font-bold text-yellow-800 flex items-center gap-2 mb-2">
               <UserCheck className="w-4 h-4" />
@@ -192,7 +192,7 @@ export function AcompanhamentoModal({ mentoriaId, onClose }: AcompanhamentoModal
                 {mentoria.ultimoRegistroDataISO && ` em ${new Date(mentoria.ultimoRegistroDataISO).toLocaleDateString('pt-BR')}`}
               </p>
             )}
-          </div>
+          </div> */}
 
           {/* Informações Principais */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

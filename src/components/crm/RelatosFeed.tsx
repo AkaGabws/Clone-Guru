@@ -310,7 +310,7 @@ function VinculacaoMentores() {
                   >
                     Mentores ({abaModal === 'mentores' ? vinculados.length : state.mentores.filter(m => Array.isArray(m.projetosIds) && m.projetosIds.includes(projetoSelecionado.id)).length})
                   </button>
-                  <button
+                  {/* <button
                     onClick={() => setAbaModal('empreendedores')}
                     className={`px-4 py-2 text-sm font-medium rounded-t-md transition-colors ${
                       abaModal === 'empreendedores'
@@ -319,7 +319,7 @@ function VinculacaoMentores() {
                     }`}
                   >
                     Empreendedores ({abaModal === 'empreendedores' ? vinculados.length : state.mentorias.filter(m => m.projetoId === projetoSelecionado.id).length})
-                  </button>
+                  </button> */}
                 </div>
               </div>
 
